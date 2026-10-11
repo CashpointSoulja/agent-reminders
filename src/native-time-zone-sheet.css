@@ -1,0 +1,25 @@
+.ntz-backdrop { position: fixed; inset: 0; z-index: 1200; background: #0002; }
+.native-details.native-time-zone-sheet[data-theme] { top: calc(var(--nd-vtop, 0px) + 62px); height: calc(var(--nd-vh, 100dvh) - 62px); max-height: calc(var(--nd-vh, 100dvh) - 62px); border-radius: 38px 38px 0 0; z-index: 1201; display: flex; flex-direction: column; background: var(--nd-bg, #f2f2f7); }
+.native-details.native-time-zone-sheet[data-theme=dark] { background: #1c1c1e; }
+.native-time-zone-sheet .nd-header { flex: none; height: 71px; padding: 16px; border-bottom: 0; grid-template-columns: 44px 1fr 44px; }
+.native-time-zone-sheet .nd-header h2 { grid-column: 2; font-size: 17px; }
+.native-time-zone-sheet .ntz-glass { border: 1px solid #8e8e9338; border-radius: 50%; color: var(--nd-color, #000); background: #ffffff65; box-shadow: inset 0 1px 1px #fff2; backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px); }
+.native-time-zone-sheet[data-theme=dark] .ntz-glass { background: #ffffff04; border-color: #ffffff20; }
+.native-time-zone-sheet .nd-header button { width: 44px; height: 44px; padding: 11px; display: grid; place-items: center; }
+.native-time-zone-sheet svg { width: 24px; height: 24px; flex: none; }
+.native-time-zone-sheet .ntz-results { flex: 1; min-height: 0; overflow-y: auto; margin: 0 16px; border-top: 1px solid #8e8e9338; overscroll-behavior: contain; }
+.native-time-zone-sheet .ntz-city { width: 100%; min-height: 72px; text-align: left; padding: 13px 0 14px; border: 0; border-bottom: 1px solid #8e8e9338; display: flex; flex-direction: column; gap: 4px; font: inherit; font-size: 17px; font-weight: 400; color: var(--nd-color, #000); background: transparent; }
+.native-time-zone-sheet .ntz-city small { font-size: 16px; color: var(--nd-secondary, #8e8e93); }
+.native-time-zone-sheet .ntz-city:active { background: #8e8e9326; }
+.native-time-zone-sheet .ntz-empty { text-align: center; color: var(--nd-secondary, #8e8e93); font-size: 17px; }
+.native-time-zone-sheet .ntz-search-footer { flex: none; padding: 12px 27px max(28px, env(safe-area-inset-bottom)); display: flex; gap: 12px; align-items: center; }
+.native-time-zone-sheet .ntz-search { flex: 1; min-width: 0; border-radius: 28px; min-height: 48px; padding: 0 16px; display: flex; align-items: center; gap: 8px; }
+.native-time-zone-sheet .ntz-search input { min-width: 0; flex: 1; border: 0; background: transparent; color: inherit; font: inherit; font-size: 17px; outline: 0; padding: 0; height: 44px; }
+.native-time-zone-sheet .ntz-search input::-webkit-search-cancel-button { display: none; }
+.native-time-zone-sheet .ntz-search input:focus { border: 0; outline: 0; box-shadow: none; }
+.native-time-zone-sheet .ntz-search button { border: 0; background: transparent; color: inherit; width: 44px; height: 44px; padding: 10px; margin-right: -10px; }
+.native-time-zone-sheet .ntz-search button:disabled { opacity: .4; }
+.native-time-zone-sheet .ntz-search button[aria-pressed=true] { color: #008bff; }
+.native-time-zone-sheet .ntz-search-close { width: 48px; height: 48px; padding: 11px; flex: none; }
+.native-time-zone-sheet .ntz-voice-error { color: var(--nd-secondary); font-size: 14px; margin: 8px 27px; }
+@media (min-width:700px) { .native-details.native-time-zone-sheet[data-theme] { top: 62px; bottom: 24px; height: auto; border-radius: 38px; } }

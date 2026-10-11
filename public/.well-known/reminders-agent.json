@@ -1,0 +1,12 @@
+{
+  "name": "Reminders Web personal agent API",
+  "protocolVersion": "1.0",
+  "discovery": "/api/agent/discovery",
+  "openapi": "/api/agent/openapi.json",
+  "guide": "/api/agent/guide",
+  "basePath": "/api/agent/v1",
+  "authentication": "Owner-issued scoped bearer token",
+  "status": "Fetch /api/agent/discovery for runtime enablement. Public definitions alone do not mean agent routes are enabled.",
+  "privacy": "Definitions are public. Personal reminders require authentication and explicit owner delegation.",
+  "execution": "The external runtime supplies its own model keys and authorized tools. The service runs no models and makes no outbound requests."
+}

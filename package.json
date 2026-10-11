@@ -1,0 +1,36 @@
+{
+  "name": "agent-reminders",
+  "version": "0.1.0",
+  "description": "Personal reminders with an Apple-inspired interface and scoped APIs for external agents.",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/CashpointSoulja/agent-reminders.git"
+  },
+  "engines": { "node": ">=22.19.0" },
+  "private": true,
+  "type": "module",
+  "main": "index.js",
+  "scripts": {
+    "start": "EXPO_PUBLIC_DEMO_MODE=1 EXPO_NO_TYPESCRIPT_SETUP=1 expo start --web --port 8081 --localhost",
+    "start:server": "EXPO_PUBLIC_DEMO_MODE=0 EXPO_NO_TYPESCRIPT_SETUP=1 expo start --web --port 8081 --localhost",
+    "build": "EXPO_PUBLIC_DEMO_MODE=0 expo export --platform web",
+    "build:demo": "EXPO_PUBLIC_DEMO_MODE=1 expo export --platform web",
+    "test": "node --test tests/*.test.js",
+    "api:dev": "wrangler dev --config wrangler.api.jsonc --port 8787",
+    "api:migrate": "wrangler d1 execute agent-reminders-data --local --file backend/schema.sql --config wrangler.api.jsonc"
+  },
+  "dependencies": {
+    "@expo/metro-runtime": "~57.0.16",
+    "expo": "~57.0.27",
+    "lucide-react": "1.55.0",
+    "react": "19.2.3",
+    "react-dom": "19.2.3",
+    "react-native": "0.86.3",
+    "react-native-web": "^0.21.2"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.64.0",
+    "wrangler": "4.149.0"
+  }
+}

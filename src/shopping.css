@@ -1,0 +1,21 @@
+.shopping-section-heading { display:flex; align-items:center; justify-content:space-between; width:100%; min-height:44px; margin:14px 0 0; padding:0 16px 0 4px; color:var(--text); background:none; border:0; font-size:22px; font-weight:700; text-align:left; }
+.shopping-section-chevron { width:10px; height:10px; margin-right:3px; border-right:2px solid var(--text); border-bottom:2px solid var(--text); transform:rotate(45deg); }
+.shopping-section-chevron[data-collapsed="true"] { transform:rotate(-45deg); }
+.shopping-section-name { outline:none; border-radius:0; }
+.shopping-entry-done { border:0; border-radius:50%; background:#007aff; min-width:44px; height:44px; margin-left:8px; display:grid; place-items:center; }
+[data-ui="main-heading"][data-shopping="yes"] [data-ui="main-title"] { white-space:nowrap; overflow:hidden; text-overflow:ellipsis; min-width:0; max-width:100%; flex:1; display:block; }
+.shopping-section[data-shopping-section="others"] .shopping-section-heading > span:first-child { color:var(--muted); }
+.shopping-section { border-bottom:1px solid var(--line); padding-bottom:8px; }
+.shopping-section:last-child { border-bottom:0; }
+.shopping-section-add { display:flex; align-items:center; width:100%; min-height:44px; padding:4px; background:none; border:0; }
+.shopping-section-add .checkbox { border-style:dotted; }
+.shopping-section-rows[hidden] { display:none; }
+.shopping-section .reminder-row { border-bottom:0; }
+.nd-shopping-section .nd-choice { display:flex; justify-content:space-between; align-items:center; min-height:50px; padding:0 16px; width:100%; text-align:left; color:var(--nd-color); background:none; border:0; border-bottom:1px solid var(--nd-separator); font-size:17px; }
+.nd-shopping-section .nd-choice:last-child { border-bottom:0; }
+.nd-shopping-section .nd-choice span { color:#007aff; }
+.nd-shopping-section .nd-choice .nd-shopping-choice-name { color:var(--nd-color); }
+.nd-shopping-section input { width:100%; min-height:50px; background:none; border:0; color:var(--nd-color); padding:0 16px; font-size:17px; }
+[data-ui="empty"][data-shopping="yes"] { gap:20px; text-align:center; padding:0 32px; }
+[data-ui="empty"][data-shopping="yes"] > span { font-size:22px; font-weight:700; color:var(--text); }
+[data-ui="shopping-empty-note"] { font-size:17px!important; line-height:23px; font-weight:400!important; color:var(--muted)!important; max-width:350px; }

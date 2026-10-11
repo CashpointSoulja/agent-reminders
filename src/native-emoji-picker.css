@@ -1,0 +1,42 @@
+.native-emoji-picker {
+  position: absolute; z-index: 6; inset: auto 0 0; height: 385px; max-height: 70%;
+  box-sizing: border-box; padding: 10px 8px 57px; border-radius: 30px 30px 0 0;
+  background: rgb(218 221 225 / 82%); color: #81858a;
+  backdrop-filter: blur(20px) saturate(145%); -webkit-backdrop-filter: blur(20px) saturate(145%);
+  box-shadow: inset 0 1px 2px rgb(255 255 255 / 35%); font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+}
+.native-list-sheet:has(.native-emoji-picker) .nls-scroll { padding-bottom: 410px; }
+.native-list-sheet:has(.native-emoji-picker) .nls-smiley::after {
+  content: ""; position: absolute; width: 48px; height: 48px; border: 2.5px solid #c7c7cc; border-radius: 50%;
+}
+.nep-search { display: flex; align-items: center; gap: 9px; height: 40px; border-radius: 13px; background: rgb(255 255 255 / 38%); padding: 0 12px; }
+.nep-search input { min-width: 0; width: 100%; border: 0; padding: 0; outline: 0; background: transparent; color: #111; font: inherit; font-size: 17px; }
+.nep-search input::placeholder { color: #84888d; opacity: 1; }
+.nep-search button { flex-shrink: 0; width: 24px; height: 24px; border: 0; border-radius: 50%; padding: 0; color: white; background: #b7bbc0; font-size: 22px; line-height: 1; }
+.nep-scroller { position: relative; display: flex; overflow-x: auto; overflow-y: hidden; margin: 12px -8px 0; padding: 0 14px; scrollbar-width: none; overscroll-behavior-x: contain; }
+.nep-scroller::-webkit-scrollbar { display: none; }
+.nep-group { flex: 0 0 auto; padding-right: 10px; }
+.nep-group h3 { margin: 0; height: 22px; font-size: 12px; font-weight: 600; color: #9da1a7; text-transform: uppercase; }
+.nep-grid { display: grid; grid-auto-flow: column; grid-template-rows: repeat(5, 40px); grid-auto-columns: 46px; }
+.native-emoji-picker .nep-emoji { background: transparent; border: 0; padding: 0; width: 44px; height: 40px; line-height: 1; font-size: 30px; font-family: "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif; touch-action: pan-x; user-select: none; -webkit-user-select: none; }
+.nep-emoji:active { border-radius: 9px; background: rgb(118 118 128 / 14%); }
+.nep-categories { display: flex; align-items: center; justify-content: space-between; height: 44px; }
+.nep-categories button { display: flex; align-items: center; justify-content: center; width: 36px; height: 44px; padding: 0; background: transparent; border: 0; color: inherit; border-radius: 50%; position: relative; }
+.nep-categories button[aria-pressed="true"]::before { content: ""; position: absolute; width: 30px; height: 30px; border-radius: 50%; background: rgb(118 118 128 / 24%); }
+.nep-categories button[aria-pressed="true"] { color: #202125; }
+.nep-categories svg { position: relative; }
+.nep-categories button:disabled { opacity: .55; }
+.nep-results { display: flex; flex-wrap: wrap; align-content: flex-start; height: 234px; overflow: auto; margin-top: 12px; }
+.nep-variants { position: absolute; left: 8px; right: 8px; bottom: 100px; display: flex; flex-wrap: wrap; justify-content: center; border-radius: 16px; padding: 8px; background: rgb(250 250 252 / 96%); box-shadow: 0 5px 24px rgb(0 0 0 / 20%); }
+.nep-variants button { padding: 0; border: 0; background: transparent; min-width: 44px; min-height: 44px; font-size: 30px; }
+.native-emoji-picker.nep-keyboard { height: 106px; max-height: 50%; padding-bottom: 0; }
+.nep-keyboard .nep-results { height: 46px; margin-top: 8px; }
+.nep-keyboard .nep-scroller { display: none; }
+@media (prefers-color-scheme: dark) {
+  .native-emoji-picker { color: #999da2; background: rgb(45 47 52 / 88%); box-shadow: inset 0 1px 2px rgb(255 255 255 / 8%); }
+  .nep-search { background: rgb(118 118 128 / 26%); }
+  .nep-search input { color: #fff; }
+  .nep-group h3 { color: #86898e; }
+  .nep-categories button[aria-pressed="true"] { color: #fff; }
+  .nep-variants { background: rgb(65 66 71 / 97%); }
+}

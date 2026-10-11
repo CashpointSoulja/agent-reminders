@@ -1,0 +1,7 @@
+{
+  "expo": {
+    "name": "Agent Reminders",
+    "slug": "agent-reminders",
+    "web": { "bundler": "metro", "output": "single" }
+  }
+}

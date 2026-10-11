@@ -1,0 +1,83 @@
+/* Intentional extension: Apple Reminders has no agent settings or agent assignment surface.
+   Tokens and chrome follow native-list-sheet.css; this is not a pixel-parity screen. */
+.agent-settings {
+  --as-bg: #f2f2f7; --as-card: #fff; --as-input: #f4f4f5; --as-muted: #8e8e93;
+  --as-sep: rgb(60 60 67 / 18%); --as-fill: rgb(118 118 128 / 12%); --as-tint: #007aff; --as-red: #ff3b30;
+  box-sizing: border-box;
+  min-height: 100dvh;
+  padding: calc(78px + env(safe-area-inset-top)) max(16px, env(safe-area-inset-right), calc((100% - 648px) / 2)) calc(40px + env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left), calc((100% - 648px) / 2));
+  background: var(--as-bg);
+  color: #000;
+  font: 17px/1.35 -apple-system, BlinkMacSystemFont, sans-serif;
+}
+.agent-settings .as-header {
+  position: fixed; z-index: 2; inset: 0 0 auto;
+  display: grid; grid-template-columns: 44px 1fr 44px; align-items: center;
+  padding: calc(13px + env(safe-area-inset-top)) max(16px, env(safe-area-inset-right)) 13px max(16px, env(safe-area-inset-left));
+  background: color-mix(in srgb, var(--as-bg) 82%, transparent);
+  -webkit-backdrop-filter: blur(18px); backdrop-filter: blur(18px);
+}
+.agent-settings .as-header h1 { grid-column: 2; margin: 0; text-align: center; font-size: 17px; font-weight: 650; }
+.agent-settings .as-back { display: flex; align-items: center; justify-content: center; width: 44px; height: 44px; border-radius: 50%; color: inherit; background-color: rgb(255 255 255 / 75%); background-image: var(--liquid-highlight); box-shadow: var(--liquid-shadow); }
+.agent-settings .as-intro { margin: 0 16px 20px; font-size: 15px; color: var(--as-muted); }
+.agent-settings .as-footnote { margin: -8px 16px 16px; font-size: 13px; color: var(--as-muted); }
+.agent-settings .as-error { margin: 0 16px 16px; font-size: 15px; color: var(--as-red); }
+.agent-settings .as-section { margin: 24px 16px 8px; font-size: 13px; font-weight: 400; color: var(--as-muted); }
+.agent-settings .as-section label { color: inherit; }
+.agent-settings .as-card { display: block; margin: 0 0 16px; padding: 4px 16px; list-style: none; background: var(--as-card); border-radius: 26px; }
+.agent-settings .as-card > li, .agent-settings .as-links a, .agent-settings .as-toggle { display: flex; align-items: center; gap: 10px; min-height: 44px; padding: 8px 0; border-bottom: .5px solid var(--as-sep); }
+.agent-settings .as-card > li:last-child, .agent-settings .as-links a:last-child, .agent-settings .as-toggle { border-bottom: 0; }
+.agent-settings .as-toggle { padding: 8px 16px; }
+.agent-settings .as-row-text { flex: 1; min-width: 0; }
+.agent-settings .as-row-text strong { display: block; font-weight: 400; overflow-wrap: anywhere; }
+.agent-settings small { display: block; font-size: 13px; color: var(--as-muted); }
+.agent-settings .as-links a { color: var(--as-tint); text-decoration: none; }
+.agent-settings .as-add { display: flex; gap: 8px; padding: 8px; }
+.agent-settings input:not([type=checkbox]) { flex: 1; min-width: 0; width: 100%; min-height: 44px; box-sizing: border-box; padding: 0 14px; border: 0; border-radius: 18px; background: var(--as-input); color: inherit; font: inherit; }
+.agent-settings .as-round { flex: none; display: flex; align-items: center; justify-content: center; width: 44px; height: 44px; border: 0; border-radius: 50%; background: var(--as-tint); color: #fff; box-shadow: var(--liquid-shadow); }
+.agent-settings .as-pill { flex: none; min-height: 44px; padding: 0 14px; border: 0; border-radius: 22px; background: var(--as-fill); color: var(--as-tint); font: inherit; font-size: 15px; }
+.agent-settings .as-destructive { color: var(--as-red); }
+.agent-settings button:disabled { opacity: .45; }
+.agent-settings .as-round:disabled { opacity: 1; background: #c7c7cc; }
+.agent-settings .as-key { padding: 16px; }
+.agent-settings .as-key h2 { margin: 0 0 4px; font-size: 17px; font-weight: 600; }
+.agent-settings .as-key p { margin: 0 0 12px; font-size: 15px; color: var(--as-muted); }
+.agent-settings .as-key input { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 15px; }
+.agent-settings .as-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+
+.agent-settings input[role=switch], .agent-assign-sheet input[role=switch] { appearance: none; -webkit-appearance: none; position: relative; flex: none; width: 51px; height: 31px; margin: 0 0 0 auto; border-radius: 16px; background: rgb(120 120 128 / 16%); transition: background-color .2s; }
+.agent-settings input[role=switch]::before, .agent-assign-sheet input[role=switch]::before { content: ""; position: absolute; top: 2px; left: 2px; width: 27px; height: 27px; border-radius: 50%; background: #fff; box-shadow: 0 2px 6px rgb(0 0 0 / 15%); transition: transform .2s; }
+.agent-settings input[role=switch]:checked, .agent-assign-sheet input[role=switch]:checked { background: #34c759; }
+.agent-settings input[role=switch]:checked::before, .agent-assign-sheet input[role=switch]:checked::before { transform: translateX(20px); }
+.agent-settings :focus-visible, .agent-assign-sheet :focus-visible, .agent-assign-sheet .aas-row:has(.aas-radio:focus-visible) { outline: 2px solid #007aff; outline-offset: 2px; }
+
+.agent-assign-sheet .aas-group { margin: 0 0 16px; padding: 0 16px; background: var(--nls-group); border-radius: 26px; }
+.agent-assign-sheet .aas-row { position: relative; display: flex; align-items: center; gap: 12px; width: 100%; min-height: 51px; box-sizing: border-box; padding: 0; border: 0; border-bottom: .5px solid rgb(60 60 67 / 18%); background: none; color: inherit; font: inherit; font-size: 17px; text-align: left; text-decoration: none; }
+.agent-assign-sheet .aas-row:last-child { border-bottom: 0; }
+.agent-assign-sheet .aas-row > span { flex: 1; min-width: 0; overflow-wrap: anywhere; }
+.agent-assign-sheet .aas-row svg { margin-left: auto; color: #007aff; }
+.agent-assign-sheet .aas-row small { display: block; font-size: 13px; color: var(--nls-muted); }
+.agent-assign-sheet .aas-radio { position: absolute; opacity: 0; pointer-events: none; }
+.agent-assign-sheet .aas-link { color: #007aff; }
+.agent-assign-sheet .aas-destructive { justify-content: center; color: #ff3b30; }
+.agent-assign-sheet .aas-row:disabled { opacity: .45; }
+.agent-assign-sheet .aas-section { margin: 20px 16px 8px; font-size: 13px; font-weight: 400; color: var(--nls-muted); }
+.agent-assign-sheet .aas-section label { color: inherit; }
+.agent-assign-sheet textarea { display: block; width: 100%; min-height: 96px; box-sizing: border-box; padding: 14px 0; border: 0; background: none; color: inherit; font: inherit; font-size: 17px; resize: vertical; outline: 0; }
+.agent-assign-sheet .aas-footnote { margin: -8px 16px 16px; font-size: 13px; line-height: 1.35; color: var(--nls-muted); }
+.agent-assign-sheet .aas-error { margin: 0 16px 16px; font-size: 15px; color: #ff3b30; }
+
+@media (prefers-color-scheme: dark) {
+  .agent-settings { --as-bg: #000; --as-card: #1c1c1e; --as-input: #2c2c2e; --as-sep: rgb(84 84 88 / 60%); --as-fill: rgb(118 118 128 / 24%); --as-tint: #0a84ff; --as-red: #ff453a; color: #fff; }
+  .agent-settings .as-back { background-color: rgb(118 118 128 / 25%); }
+  .agent-settings .as-round:disabled { background: #48484a; }
+  .agent-settings input[role=switch], .agent-assign-sheet input[role=switch] { background: rgb(120 120 128 / 32%); }
+  .agent-settings input[role=switch]:checked, .agent-assign-sheet input[role=switch]:checked { background: #30d158; }
+  .agent-assign-sheet .aas-row { border-bottom-color: rgb(84 84 88 / 60%); }
+  .agent-assign-sheet .aas-row svg, .agent-assign-sheet .aas-link { color: #0a84ff; }
+  .agent-assign-sheet .aas-destructive, .agent-assign-sheet .aas-error { color: #ff453a; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .agent-settings input[role=switch], .agent-settings input[role=switch]::before,
+  .agent-assign-sheet input[role=switch], .agent-assign-sheet input[role=switch]::before { transition: none; }
+}

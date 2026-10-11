@@ -1,0 +1,49 @@
+# User guide
+
+The public playground starts with fictional reminders in your own browser. It does not connect to a private server or Apple account. A self-hosted instance adds persistent storage, private attachments and opt-in agent/device features.
+
+## Capture and organise
+
+Create a list from Home. Choose its name, colour, icon or emoji and list type. Standard lists support manual organisation; shopping lists use an English vocabulary to suggest sections. Unknown items stay in Others and can be moved manually.
+
+Add a reminder to the selected list. Open its Details to edit notes, URL, tags, date/time, repeat pattern, priority and flag. Date and time are stored values; setting them does not establish an OS notification or background alarm.
+
+Use Today, Scheduled, All, Flagged and other smart views to find reminders. Search narrows visible results. A reminder's list and tags remain available through its editing flow.
+
+## Subtasks
+
+Long-press and drag a row to reorder it. Drop onto another row to nest it as a subtask, or drag a subtask out to remove its parent relationship. A parent shows a chevron; tap it to expand or collapse. A collapsed parent shows its child count.
+
+Desktop keyboard and pointer behaviour are supported where implemented, but exact Apple gesture timing and motion remain in progress.
+
+## Templates and attachments
+
+Save a list as a template and create a new independent list from it. Template editing can change reminder fields and attachment copies. Cancelling an editor preserves the saved template. On a self-hosted instance, explicit template sharing exposes only the shared template snapshot, not workspace or agent/device authority.
+
+Private photo/file upload needs the server's R2 binding. Supported uploads are PNG, JPEG, WebP, PDF and plain text, up to five MiB each. Downloads remain authenticated. The browser-local playground is a limited preview; use your own instance for server attachment behaviour.
+
+## Bring an agent
+
+On an instance with the agent feature enabled:
+
+1. Open `/settings/agents` and register your runtime.
+2. Issue a scoped expiring token and configure it privately in that runtime. The value is shown only once.
+3. Assign a reminder to the agent and write clear completion criteria. Explicitly include subtasks if the task needs them.
+4. The runtime claims and performs only its assigned scope, then reports verification evidence.
+5. A successful receipt crosses off the assigned occurrence. Failed or uncertain work remains open.
+
+Provider keys stay with your runtime. The app does not run a model or collect those keys. OpenClaw, Hermes, Grok and other agent products can implement the HTTP contract, but dedicated integrations are not included or verified.
+
+Cancel an assignment or revoke a token to stop new work. This cannot undo an external action already in progress. A receipt records the agent's attestation, so review the evidence for consequential work.
+
+## Connect a device
+
+The optional iOS companion can preview selected lists, pair with your self-hosted instance and upload a reviewed snapshot. Completion writeback is a separate setting. Simulator mode is always synthetic; physical-device sync remains unverified. Follow [native sync](NATIVE-SYNC.md) before using real reminders.
+
+## If saving fails
+
+A server instance keeps an unsaved local draft when a session expires or a revision conflicts. Sign in again, export the draft if needed and explicitly reload/reconcile. Do not assume a failed response means a write did not commit.
+
+## Known limits
+
+Exact Apple screen pixels and dynamic Liquid Glass are unfinished. Notifications, geofences, full native field sync, real collaboration, offline conflict merging, comprehensive backup/restore and hosted model execution are not implemented. This is a personal preview application; evaluate with fictional data first.

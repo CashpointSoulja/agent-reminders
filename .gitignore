@@ -1,0 +1,13 @@
+node_modules/
+.expo/
+dist/
+work/
+.DS_Store
+.wrangler/
+.dev.vars*
+!.dev.vars.example
+.env*
+!.env.example
+*.xcresult/
+*.xcuserstate
+xcuserdata/

@@ -1,0 +1,14 @@
+{
+  "name": "agent-reminders-api",
+  "main": "backend/worker.js",
+  "compatibility_date": "2026-09-18",
+  "workers_dev": true,
+  "d1_databases": [{
+    "binding": "DB",
+    "database_name": "agent-reminders-data",
+    "database_id": "00000000-0000-0000-0000-000000000000"
+  }],
+  "r2_buckets": [{ "binding": "FILES", "bucket_name": "agent-reminders-attachments" }],
+  "vars": { "SAMPLE_DATA": "1", "APP_ORIGIN": "https://agent-reminders.pages.dev", "DEV_MODE": "0", "AGENT_API": "0", "DEVICE_SYNC": "0" },
+  "triggers": { "crons": ["0 3 * * *"] }
+}

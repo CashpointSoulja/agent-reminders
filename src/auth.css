@@ -1,0 +1,124 @@
+.auth-gate {
+  min-height: 100dvh;
+  display: grid;
+  place-items: center;
+  background: #f2f2f7;
+  color: #1c1c1e;
+  padding: 24px;
+  font:
+    17px -apple-system,
+    BlinkMacSystemFont,
+    sans-serif;
+  box-sizing: border-box;
+}
+.auth-card {
+  width: min(100%, 360px);
+  padding: 28px;
+  border-radius: 18px;
+  background: white;
+  box-shadow: 0 8px 30px #0001;
+  box-sizing: border-box;
+}
+.auth-card h1 {
+  margin: 0 0 24px;
+  font-size: 28px;
+}
+.auth-card form {
+  display: grid;
+  gap: 16px;
+}
+.auth-card p {
+  line-height: 1.45;
+  margin: 0 0 16px;
+}
+.auth-card label {
+  font-size: 15px;
+}
+.auth-card input {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 12px;
+  border: 1px solid #8e8e93;
+  border-radius: 8px;
+  font: inherit;
+}
+.auth-card button,
+.workspace-session button {
+  font: inherit;
+  color: #007aff;
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+  padding: 8px;
+}
+.auth-card button {
+  background: #007aff;
+  color: white;
+  border-radius: 8px;
+}
+.auth-card button:disabled,
+.workspace-session button:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+.auth-card :focus-visible,
+.workspace-session :focus-visible {
+  outline: 3px solid #007aff;
+  outline-offset: 3px;
+}
+.workspace-session {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  justify-content: flex-end;
+  padding: 2px 12px;
+  font:
+    12px -apple-system,
+    BlinkMacSystemFont,
+    sans-serif;
+  background: #f2f2f7;
+  color: #1c1c1e;
+}
+.workspace-session span {
+  margin-right: auto;
+}
+.workspace-session button {
+  white-space: nowrap;
+}
+@media (prefers-color-scheme: dark) {
+  .auth-gate,
+  .workspace-session {
+    background: #1c1c1e;
+    color: #fff;
+  }
+  .auth-card {
+    background: #2c2c2e;
+  }
+  .auth-card input {
+    background: #1c1c1e;
+    color: white;
+  }
+}
+.server-root {
+  display: flex;
+  flex-direction: column;
+  width: 100vw;
+  height: 100dvh;
+  min-width: 0;
+  overflow: hidden;
+}
+.server-root > [data-ui="app"] {
+  height: auto;
+  flex: 1;
+  min-height: 0;
+}
+.auth-gate {
+  width: 100vw;
+}
+.auth-card button {
+  min-height: 44px;
+}
+
+.server-root[hidden] {
+  display: none;
+}

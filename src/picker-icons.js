@@ -1,0 +1,36 @@
+import {
+  Smile, List, Bookmark, KeyRound, Gift, Cake, GraduationCap, Backpack,
+  PencilRuler, FileText, BookOpen, Archive, CreditCard, Banknote, Dumbbell,
+  PersonStanding, Utensils, Wine, Pill, Stethoscope, Armchair, House, Building,
+  Landmark, Tent, Monitor, Music, SquarePlay, Gamepad2, Headphones, Leaf,
+  Carrot, UserRound, UsersRound, Users, PawPrint, ToyBrick, Fish, ShoppingBasket,
+  ShoppingCart, ShoppingBag, Package, Circle, CircleDot, Volleyball, Disc3,
+  RugbyBall, TrainFront, Plane, Sailboat, Car, Umbrella, Sun, Moon, Droplet,
+  Snowflake, Flame, Briefcase, Wrench, Scissors, Compass, Braces, Lightbulb,
+  MessageCircle, TriangleAlert, Asterisk, Square, Triangle, Diamond, Heart,
+  Star, Clock, Repeat, CalendarCheck, Tag, ListTree, MapPin, AlarmClock, ArrowDownUp,
+} from 'lucide-react';
+
+// Licensed SVG alternatives; no artwork extracted from Apple screenshots is shipped.
+export const pickerIcons = {
+  smiley: Smile, list: List, bookmark: Bookmark, key: KeyRound, gift: Gift,
+  cake: Cake, graduation: GraduationCap, backpack: Backpack, pencil: PencilRuler,
+  document: FileText, book: BookOpen, inbox: Archive, card: CreditCard,
+  money: Banknote, weights: Dumbbell, running: PersonStanding, cutlery: Utensils,
+  wine: Wine, medicine: Pill, stethoscope: Stethoscope, chair: Armchair,
+  house: House, building: Building, bank: Landmark, tent: Tent, monitor: Monitor,
+  music: Music, 'note-display': SquarePlay, gamecontroller: Gamepad2,
+  headphones: Headphones, leaf: Leaf, carrot: Carrot, person: UserRound,
+  twopeople: UsersRound, family: Users, paw: PawPrint, teddybear: ToyBrick,
+  fish: Fish, basket: ShoppingBasket, cart: ShoppingCart, shoppingbag: ShoppingBag,
+  box: Package, football: CircleDot, baseball: Circle, basketball: Volleyball,
+  americanfootball: RugbyBall, tennis: Disc3, train: TrainFront, airplane: Plane,
+  sailboat: Sailboat, car: Car, umbrella: Umbrella, sun: Sun, moon: Moon,
+  droplet: Droplet, snowflake: Snowflake, flame: Flame, briefcase: Briefcase,
+  tools: Wrench, scissors: Scissors, compass: Compass, braces: Braces,
+  lightbulb: Lightbulb, speechbubble: MessageCircle, exclamation: TriangleAlert,
+  asterisk: Asterisk, square: Square, circle: Circle, triangle: Triangle,
+  diamond: Diamond, heart: Heart, star: Star, 'list-hero': List,
+  clock: Clock, repeat: Repeat, 'calendar-check': CalendarCheck, tags: Tag,
+  subtasks: ListTree, location: MapPin, alarm: AlarmClock, priority: ArrowDownUp,
+};

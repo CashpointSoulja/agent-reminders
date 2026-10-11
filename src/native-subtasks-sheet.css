@@ -1,0 +1,15 @@
+.ns-backdrop { position: fixed; inset: 0; z-index: 1200; background: #0002; }
+.native-details.native-subtasks-sheet[data-theme] { top: calc(var(--nd-vtop, 0px) + 62px); height: calc(var(--nd-vh, 100dvh) - 62px); max-height: calc(var(--nd-vh, 100dvh) - 62px); border-radius: 38px 38px 0 0; z-index: 1201; display: flex; flex-direction: column; }
+.native-details.native-subtasks-sheet .nd-header { height: 70px; padding: 12px 16px; border-bottom: 1px solid #8e8e931f; grid-template-columns: 44px 1fr 44px; }
+.native-details.native-subtasks-sheet .nd-header h2 { grid-column: 2; }
+.native-details.native-subtasks-sheet .ns-content { overflow: auto; padding-bottom: max(24px, env(safe-area-inset-bottom)); }
+.native-subtasks-sheet .ns-row { min-height: 51px; display: flex; align-items: center; padding: 0 20px 0 12px; gap: 0; background: var(--nd-group, #fff); }
+.native-subtasks-sheet .ns-row input { min-width: 0; flex: 1; height: 51px; border: 0; outline: 0; border-radius: 0; border-bottom: 1px solid #8e8e9326; background: transparent; font: inherit; font-size: 17px; color: var(--nd-color, #000); padding: 0; }
+.native-subtasks-sheet .ns-circle { flex: none; width: 44px; height: 44px; border: 0; background: transparent; color: #008bff; position: relative; font-size: 16px; display: grid; place-items: center; }
+.native-subtasks-sheet .ns-circle::before { content: ''; position: absolute; width: 20px; height: 20px; border: 1.5px solid #c7c7cc; border-radius: 50%; }
+.native-subtasks-sheet .ns-circle[aria-checked=true]::before { border-color: #008bff; }
+.native-subtasks-sheet .ns-add { min-height: 51px; width: 100%; padding: 0 20px 0 56px; text-align: left; color: #008bff; background: var(--nd-group, #fff); border: 0; border-bottom: 1px solid #8e8e931f; font: inherit; font-size: 17px; }
+@media (min-width:700px) { .native-details.native-subtasks-sheet[data-theme] { top: 62px; bottom: 24px; height: auto; border-radius: 38px; } }
+
+.native-details .nd-subtasks-row { width: 100%; min-height: 52px; background: transparent; color: var(--nd-color, #000); border: 0; text-align: left; font: inherit; cursor: pointer; }
+.native-details .nd-subtasks-chevron { color: var(--nd-secondary, #c4c4c8); margin-left: 5px; }

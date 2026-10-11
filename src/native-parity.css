@@ -1,0 +1,89 @@
+.reminder-url {
+  color: var(--blue);
+  font-size: 13px;
+  text-decoration: none;
+  overflow-wrap: anywhere;
+}
+.reminder-row.cut {
+  opacity: 0.45;
+}
+@media (max-width: 599px) {
+  [data-ui="app"] [data-ui="row-title"] {
+    font-size: 17px;
+  }
+  [data-ui="app"] [data-ui="row-note"],
+  [data-ui="app"] [data-ui="row-meta"] {
+    font-size: 15px;
+  }
+  .checkbox {
+    width: 22px;
+    height: 22px;
+  }
+  [data-ui="app"] [data-ui="main-title"] {
+    font-family:
+      ui-rounded,
+      -apple-system,
+      BlinkMacSystemFont,
+      sans-serif;
+  }
+}
+.composer-fields { flex: 1; min-width: 0; }
+.inline-edit { display: flex; flex-direction: column; }
+.inline-edit input, .inline-edit textarea, .inline-composer input, .inline-composer textarea {
+  background: transparent; padding: 0; border-radius: 0; resize: none; outline: none;
+}
+.inline-edit textarea, .inline-composer textarea { color: var(--muted); margin-top: 4px; font-size: 15px; line-height: 20px; }
+.floating-add { position: absolute; right: 28px; bottom: max(28px, env(safe-area-inset-bottom)); width: 48px; height: 48px; border: 1px solid #48c9ff; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #83daff; background: #007aff; box-shadow: 0 8px 30px #00000012; z-index: 3; }
+.selection-done { background: transparent; border: 0; color: var(--blue); }
+@media (max-width: 599px) {
+  [data-ui="main"] { padding: 0 16px; position: relative; }
+  [data-ui="toolbar"] { margin: 0; }
+  [data-ui="toolbar-left"] [data-ui="icon-button"], [data-ui="toolbar-pill"] [data-ui="icon-button"] {
+    width: 44px; height: 44px; border-radius: 50%; background: var(--bg); color: var(--text); box-shadow: 0 6px 22px #0000000b;
+  }
+  [data-ui="app"] [data-ui="main-title"] { font-weight: 800; font-size: 32px; letter-spacing: -0.6px; }
+  [data-ui="app"] [data-ui="row-main"] { padding-top: 15px; padding-bottom: 15px; }
+  [data-ui="app"] [data-ui="checkbox-hit"] { width: 36px; padding-top: 15px; }
+  [data-ui="app"] [data-ui="row-title"] { line-height: 23px; }
+  .reminder-row .row-actions { display: none; }
+  .reminder-row.selected .row-actions, .reminder-row .row-actions.flagged { display: flex; }
+  .reminder-row.selected { background: transparent; }
+  .inline-edit input { font-size: 17px; line-height: 23px; }
+  .inline-edit textarea { min-height: 20px; }
+  .inline-composer { padding: 15px 0; align-items: flex-start; gap: 14px; border: 0; }
+  .inline-composer .checkbox { margin-top: 0; }
+  .inline-composer input { font-size: 17px; line-height: 23px; min-height: 23px; }
+  .inline-composer button { padding: 0; background: transparent; color: var(--blue); border: 0; }
+  [data-ui="row-main"][data-selected="yes"] { background: var(--selected); }
+  .native-list-menu { position: fixed; right: 16px; top: calc(62px + env(safe-area-inset-top)); width: 265px; padding: 0; border-radius: 24px; background: var(--glass); backdrop-filter: blur(24px); }
+  .native-list-menu [role="menu"] { padding: 5px 0; }
+  .native-list-menu button { width: 100%; border: 0; background: transparent; min-height: 44px; display: flex; justify-content: space-between; align-items: center; padding: 10px 18px; text-align: left; }
+  .native-list-menu button + button { border-top: 1px solid var(--line); }
+  .native-list-menu .destructive { color: #ff3b30; }
+  [data-ui="reminders-scroll"] { padding-bottom: 88px; }
+}
+@media print {
+  [data-ui="sidebar"], [data-ui="toolbar"], [data-ui="details-pane"], [data-ui="main-count"], .composer, .floating-add, .row-actions, .modal-backdrop, [data-ui="notice"], .session-banner { display: none !important; }
+  [data-ui="app"], [data-ui="workspace"], [data-ui="main"], [data-ui="reminders-scroll"] { height: auto !important; overflow: visible !important; }
+  [data-ui="main"] { padding: 0; }
+}
+@media (max-width: 599px) {
+  [data-ui="app"] [data-ui="row-main"] { padding-left: 0; padding-right: 0; }
+  [data-ui="app"] [data-ui="checkbox-hit"] { align-items: flex-start; padding-left: 2px; }
+  [data-ui="row-note"] + [data-ui="row-meta"]:not(:empty) { margin-top: 18px; }
+  [data-ui="row-meta"]:empty { display: none; }
+  .rows > section > .subtask-motion:last-child .reminder-row { border-bottom: 0; }
+}
+@media print {
+  html, body, #root, .server-root,
+  [data-ui="app"], [data-ui="workspace"], [data-ui="main"], [data-ui="reminders-scroll"] {
+    display: block !important;
+    width: 100% !important;
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    overflow: visible !important;
+  }
+  .reminder-row { break-inside: avoid; }
+  .subtask-chevron { display: none !important; }
+}

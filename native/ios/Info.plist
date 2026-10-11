@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0"><dict>
+<key>CFBundleIdentifier</key><string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
+<key>CFBundleExecutable</key><string>AgentReminders</string>
+<key>CFBundleName</key><string>Agent Reminders</string>
+<key>CFBundleDisplayName</key><string>Agent Reminders</string>
+<key>CFBundleVersion</key><string>1</string>
+<key>CFBundleShortVersionString</key><string>0.1.0</string>
+<key>CFBundlePackageType</key><string>APPL</string>
+<key>LSRequiresIPhoneOS</key><true/>
+<key>MinimumOSVersion</key><string>17.0</string>
+<key>UIDeviceFamily</key><array><integer>1</integer><integer>2</integer></array>
+<key>UILaunchScreen</key><dict/>
+<key>NSRemindersFullAccessUsageDescription</key><string>Choose which Apple Reminders lists to preview for your private Agent Reminders device. Sync and task completion writeback stay off until you enable them.</string>
+<key>NSAppTransportSecurity</key><dict><key>NSAllowsLocalNetworking</key><true/>
+<key>NSExceptionDomains</key><dict><key>localhost</key><dict><key>NSExceptionAllowsInsecureHTTPLoads</key><true/></dict></dict></dict>
+<key>UIApplicationShortcutItems</key><array><dict><key>UIApplicationShortcutItemType</key><string>local.rea.device-settings</string><key>UIApplicationShortcutItemTitle</key><string>Device Connection</string><key>UIApplicationShortcutItemIconType</key><string>UIApplicationShortcutIconTypeTask</string></dict></array>
+</dict></plist>

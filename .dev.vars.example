@@ -1,0 +1,8 @@
+# Copy to .dev.vars and edit privately. Never commit .dev.vars.
+APP_PASSWORD=replace-with-your-own-long-password
+SESSION_SECRET=replace-with-a-random-secret-at-least-32-characters-long
+APP_ORIGIN=http://localhost:8081
+DEV_MODE=1
+SAMPLE_DATA=1
+AGENT_API=0
+DEVICE_SYNC=0

@@ -1,0 +1,11 @@
+.nt-backdrop { position: fixed; inset: 0; z-index: 1200; background: #0002; }
+.native-details.native-tags-sheet[data-theme] { display: flex; flex-direction: column; z-index: 1201; top: calc(var(--nd-vtop, 0px) + 72px); height: calc(var(--nd-vh, 100dvh) - 72px); max-height: calc(var(--nd-vh, 100dvh) - 72px); border-radius: 38px 38px 0 0; }
+.native-details.native-tags-sheet .nd-header { height: 78px; padding: 12px 16px; border-bottom: 0; }
+.native-details.native-tags-sheet .nd-content { padding: 0 20px max(24px, env(safe-area-inset-bottom)); }
+.native-details.native-tags-sheet .nt-entry { height: 53px; border-radius: 27px; background: var(--nd-group, #fff); display: flex; align-items: center; padding: 0 16px; }
+.native-details.native-tags-sheet .nt-entry input { border: 0; outline: none; width: 100%; min-width: 0; padding: 0; font: inherit; font-size: 17px; color: var(--nd-color, #000); background: transparent; }
+.native-details.native-tags-sheet .nt-entry input::placeholder { color: var(--nd-secondary, #c7c7cc); opacity: .65; }
+.native-details.native-tags-sheet .nt-tags { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 18px; }
+.native-details.native-tags-sheet .nt-tags button { min-height: 44px; border: 0; padding: 10px 16px; border-radius: 24px; background: var(--nd-group, #fff); color: var(--nd-color, #000); font: inherit; font-size: 17px; }
+.native-details.native-tags-sheet .nt-tags button[aria-pressed=true] { background: #008bff; color: white; }
+@media (min-width:700px) { .native-details.native-tags-sheet[data-theme] { top: 72px; bottom: 24px; height: auto; max-height: calc(var(--nd-vh, 100dvh) - 96px); border-radius: 38px; } }
