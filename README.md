@@ -110,6 +110,8 @@ For a static-only playground artifact, run `npm run build:demo` followed by `nod
 
 The unit/integration suite includes real SQLite transaction tests with a D1 adapter and fake R2. Browser and iPhone simulator checks cover selected flows using fictional data; they do not establish whole-screen pixel equality or physical-device sync.
 
+Release checks: **153 automated tests pass**. The live playground was also checked for save/reload persistence, independent-browser isolation, completion/reopening, subtask collapse/expansion, template copying and shopping categories. That run made 126 requests with zero API requests, external-origin requests or page errors. Drag/native motion and real Apple sync were not part of that public-demo check.
+
 Optional macOS checks:
 
 ```sh
