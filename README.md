@@ -1,10 +1,21 @@
 # Agent Reminders
 
+[![CI](https://github.com/CashpointSoulja/agent-reminders/actions/workflows/ci.yml/badge.svg)](https://github.com/CashpointSoulja/agent-reminders/actions/workflows/ci.yml)
+
 A personal reminders app with an Apple-inspired interface and an API for the agents you bring.
 
 Organise lists, dates, notes and subtasks, then explicitly delegate selected reminders to your own agent runtime. Your runtime supplies its model keys and tools; this app supplies scoped access, task claims and completion receipts.
 
 **Status: working preview.** Core flows have automated coverage. Exact Apple UI parity, physical-device sync and named vendor integrations remain unfinished.
+
+![Desktop playground with fictional sample reminders](docs/images/demo-desktop.png)
+
+<details>
+<summary>Phone preview</summary>
+
+<img src="docs/images/demo-iphone.png" width="280" alt="Phone playground showing fictional sample lists" />
+
+</details>
 
 ## Try it
 
@@ -94,6 +105,8 @@ npm run build
 ```
 
 `npm run build` exports the private server-backed web app. `npm run build:demo` exports the browser-local playground. Neither command deploys anything.
+
+For a static-only playground artifact, run `npm run build:demo` followed by `node scripts/prepare-demo.mjs`. Publish only `work/demo-static` from a directory without `functions/`, Worker configuration or service bindings. Its API routes explicitly report that agent and device services are disabled.
 
 The unit/integration suite includes real SQLite transaction tests with a D1 adapter and fake R2. Browser and iPhone simulator checks cover selected flows using fictional data; they do not establish whole-screen pixel equality or physical-device sync.
 
