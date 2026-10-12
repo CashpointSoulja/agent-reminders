@@ -86,3 +86,102 @@ test("native selected-list snapshot retains date/time/priority and clears unsafe
   assert.equal(imported[1].completedAt, "2026-10-12T09:59:59.000Z");
   for (const bad of [{ ...raw, selectedListIDs: ["unselected"] }, { ...raw, reminders: [...raw.reminders, raw.reminders[0]] }, { ...raw, generatedAt: 1e20 }, { ...raw, reminders: [{ ...raw.reminders[0], due: { year: 2026, month: 2, day: 30 } }] }, { ...raw, reminders: [{ ...raw.reminders[0], due: { year: 2026, month: 10, day: 13, calendarID: "hebrew" } }] }]) assert.throws(() => normalizeICloudSnapshot(bad), { code: "invalid_snapshot" });
 });
+
+const sectionedSnapshot = (extra = {}) => snapshot([
+  reminder("z", { sectionId: "b" }), reminder("a", { sectionId: "a" }), reminder("free", { sectionId: null }),
+], { provider: "icloud", lists: [{ id: "source-list", name: "Synthetic Sectioned List", sections: [{ id: "b", name: "Sample Creators" }, { id: "a", name: "Sample Recommendations" }], reminders: [reminder("z", { sectionId: "b" }), reminder("a", { sectionId: "a" }), reminder("free", { sectionId: null })] }], ...extra });
+
+test("original sections, empty sections, membership and source row order survive import and reload", () => {
+  const first = mergeAccountSnapshot(seedData(now), null, sectionedSnapshot(), { now });
+  const list = first.data.lists.at(-1), rows = first.data.reminders.slice(-3);
+  assert.deepEqual(list.sections.map(section => section.name), ["Sample Creators", "Sample Recommendations"]);
+  assert.deepEqual(rows.map(row => row.title), ["Source z", "Source a", "Source free"]);
+  assert.deepEqual(rows.map(row => row.sectionId), [list.sections[0].id, list.sections[1].id, null]);
+  const repeated = mergeAccountSnapshot(JSON.parse(JSON.stringify(first.data)), JSON.parse(JSON.stringify(first.provenance)), sectionedSnapshot(), { now });
+  assert.deepEqual(repeated.data, first.data); assert.equal(repeated.imported, 0);
+  assert.equal(validateAccountProvenance(repeated.provenance), true);
+});
+
+test("section-aware refresh repairs old flat imports and follows original rename, membership and order", () => {
+  const old = mergeAccountSnapshot(seedData(now), null, snapshot([reminder("a"), reminder("z"), reminder("free")], { provider: "icloud" }), { now });
+  const repaired = mergeAccountSnapshot(old.data, old.provenance, sectionedSnapshot(), { now });
+  assert.equal(repaired.imported, 0);
+  assert.deepEqual(repaired.data.reminders.slice(-3).map(row => row.title), ["Source z", "Source a", "Source free"]);
+  const refresh = sectionedSnapshot({ generatedAt: "2026-10-12T11:00:00.000Z" });
+  refresh.lists[0].sections.reverse(); refresh.lists[0].sections[0].name = "Sample Revised Recommendations";
+  refresh.lists[0].reminders.reverse(); refresh.lists[0].reminders[0].sectionId = "a";
+  const updated = mergeAccountSnapshot(repaired.data, repaired.provenance, refresh, { now });
+  assert.deepEqual(updated.data.lists.at(-1).sections.map(section => section.name), ["Sample Revised Recommendations", "Sample Creators"]);
+  assert.deepEqual(updated.data.reminders.slice(-3).map(row => row.title), ["Source free", "Source a", "Source z"]);
+  assert.equal(updated.data.reminders.at(-3).sectionId, updated.data.lists.at(-1).sections[0].id);
+  assert.deepEqual(updated.conflicts, []);
+});
+
+test("old EventKit snapshots do not erase sections; local edits survive section-aware refresh", () => {
+  const first = mergeAccountSnapshot(seedData(now), null, sectionedSnapshot(), { now });
+  first.data.lists.at(-1).sections[0].name = "Sample local name";
+  first.data.reminders.at(-1).sectionId = first.data.lists.at(-1).sections[0].id;
+  const flat = mergeAccountSnapshot(first.data, first.provenance, snapshot([reminder("z"), reminder("a"), reminder("free")], { provider: "icloud", generatedAt: "2026-10-12T11:00:00.000Z" }), { now });
+  assert.equal(flat.data.lists.at(-1).sections.length, 2);
+  assert.equal(flat.data.reminders.at(-1).sectionId, first.data.reminders.at(-1).sectionId);
+  const remote = sectionedSnapshot({ generatedAt: "2026-10-12T12:00:00.000Z" });
+  remote.lists[0].sections[0].name = "Sample remote name";
+  remote.lists[0].sections.push({ id: "new", name: "Sample empty section" });
+  const updated = mergeAccountSnapshot(flat.data, flat.provenance, remote, { now });
+  assert.deepEqual(updated.data.lists.at(-1).sections.map(section => section.name), ["Sample local name", "Sample Recommendations", "Sample empty section"]);
+  assert.equal(updated.data.reminders.at(-1).sectionId, first.data.reminders.at(-1).sectionId);
+  assert.ok(updated.conflicts.some(conflict => conflict.field === "sections"));
+});
+
+test("local section and reminder reordering stays local while source additions are retained", () => {
+  const first = mergeAccountSnapshot(seedData(now), null, sectionedSnapshot(), { now });
+  first.data.lists.at(-1).sections.reverse();
+  const [one, two, three] = first.data.reminders.splice(-3); first.data.reminders.push(two, one, three);
+  const next = sectionedSnapshot({ generatedAt: "2026-10-12T11:00:00.000Z" });
+  next.lists[0].sections.push({ id: "new", name: "Sample new section" });
+  const refreshed = mergeAccountSnapshot(first.data, first.provenance, next, { now });
+  assert.deepEqual(refreshed.data.lists.at(-1).sections.map(section => section.name), ["Sample Recommendations", "Sample Creators", "Sample new section"]);
+  assert.deepEqual(refreshed.data.reminders.slice(-3).map(row => row.title), ["Source a", "Source z", "Source free"]);
+  assert.ok(refreshed.conflicts.some(conflict => conflict.field === "order"));
+});
+
+test("section references and boundaries reject atomically, including native duplicate aliases", () => {
+  const initial = seedData(now), original = JSON.stringify(initial);
+  for (const mutate of [s => s.lists[0].sections.push(s.lists[0].sections[0]), s => s.lists[0].sections[0].name = "", s => s.lists[0].sections[0].name = "x".repeat(201), s => s.lists[0].reminders[0].sectionId = "unknown", s => s.lists[0].sections = []]) {
+    const bad = sectionedSnapshot(); mutate(bad);
+    assert.throws(() => mergeAccountSnapshot(initial, null, bad, { now }), { code: "invalid_snapshot" });
+    assert.equal(JSON.stringify(initial), original);
+  }
+  const native = { schemaVersion: 1, generatedAt: now.getTime(), sample: true, selectedListIDs: ["native-list"], lists: [{ id: "native-list", title: "Synthetic Native", writable: true, sections: [{ id: "native-section", title: "Sample Source Section" }] }], reminders: [{ id: "native-row", listID: "native-list", title: "Sample", completed: false, priority: 0, recurring: false, sectionID: "native-section" }] };
+  const normalized = normalizeICloudSnapshot(native);
+  assert.equal(normalized.lists[0].sections[0].name, "Sample Source Section");
+  assert.equal(normalized.lists[0].reminders[0].sectionId, "native-section");
+  assert.throws(() => normalizeICloudSnapshot({ ...native, reminders: [{ ...native.reminders[0], sectionID: "foreign" }] }), { code: "invalid_snapshot" });
+  assert.throws(() => normalizeICloudSnapshot({ ...native, lists: [{ ...native.lists[0], sections: null }] }), { code: "invalid_snapshot" });
+});
+
+test("native UUID and reminderkit URI identity crosswalk refreshes existing imports without title matching", () => {
+  const listID = "AAAAAAAA-AAAA-AAAA-AAAA-AAAAAAAAAAAA", reminderID = "BBBBBBBB-BBBB-BBBB-BBBB-BBBBBBBBBBBB";
+  const first = mergeAccountSnapshot(seedData(now), null, snapshot([], { provider: "icloud", lists: [{ id: listID, name: "Synthetic original", reminders: [reminder(reminderID)] }] }), { now });
+  const raw = { schemaVersion: 1, generatedAt: now.getTime(), sample: true, selectedListIDs: [`x-apple-reminderkit://REMList/${listID.toLowerCase()}`], lists: [{ id: `x-apple-reminderkit://REMList/${listID.toLowerCase()}`, title: "Synthetic renamed", writable: true, sections: [{ id: "section", title: "Sample" }] }], reminders: [{ id: `x-apple-reminderkit://REMReminder/${reminderID.toLowerCase()}`, listID: listID.toLowerCase(), title: "A different source title", completed: false, priority: 0, recurring: false, sectionID: "section" }] };
+  const refreshed = mergeAccountSnapshot(first.data, first.provenance, normalizeICloudSnapshot(raw), { now });
+  assert.equal(refreshed.imported, 0); assert.equal(refreshed.data.lists.length, first.data.lists.length);
+  assert.equal(refreshed.data.reminders.at(-1).id, first.data.reminders.at(-1).id);
+  assert.equal(refreshed.data.reminders.at(-1).title, "A different source title");
+  assert.equal(refreshed.data.reminders.at(-1).sectionId, refreshed.data.lists.at(-1).sections[0].id);
+});
+
+test("removed source sections disappear only when unedited and unreferenced", () => {
+  const first = mergeAccountSnapshot(seedData(now), null, sectionedSnapshot(), { now });
+  const removed = sectionedSnapshot({ generatedAt: "2026-10-12T11:00:00.000Z" });
+  removed.lists[0].sections = [];
+  for (const row of removed.lists[0].reminders) row.sectionId = null;
+  const refreshed = mergeAccountSnapshot(first.data, first.provenance, removed, { now });
+  assert.deepEqual(refreshed.data.lists.at(-1).sections, []);
+  assert.ok(refreshed.data.reminders.slice(-3).every(row => row.sectionId === null));
+  const retained = mergeAccountSnapshot(first.data, first.provenance, { ...removed, lists: [{ ...removed.lists[0], reminders: [] }] }, { now });
+  assert.equal(retained.data.lists.at(-1).sections.length, 2);
+  first.data.lists.at(-1).sections[0].name = "Sample local rename";
+  const local = mergeAccountSnapshot(first.data, first.provenance, removed, { now });
+  assert.deepEqual(local.data.lists.at(-1).sections.map(section => section.name), ["Sample local rename"]);
+});

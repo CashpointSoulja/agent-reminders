@@ -67,7 +67,7 @@ export default function AccountsSheet({ accounts, onClose }) {
       <h4 className="accounts-group-title">Preview</h4>
       <p>{preview.lists.length} {preview.sample ? "sample " : ""}lists · {preview.lists.reduce((count, source) => count + source.reminders.length, 0)} reminders</p>
       <ul>{preview.lists.flatMap(source => source.reminders).slice(0, 5).map((reminder, index) => <li key={`${reminder.id}:${index}`}>{reminder.title}</li>)}</ul>
-      <p className="accounts-caption">Only the previewed lists will be imported. Existing local edits and reminders are kept.</p>
+      <p className="accounts-caption">Only the previewed lists will be imported. Existing local edits and reminders are kept. Imported copies are saved to Cloudflare only if you enabled Cloud Storage.</p>
       <button className="accounts-action" disabled={busy} onClick={() => accounts.importPreview(provider)}>Import on This Device</button>
     </section>;
   }
@@ -92,7 +92,7 @@ export default function AccountsSheet({ accounts, onClose }) {
               </button>;
             })}
           </section>
-          <p className="accounts-caption">Choose which lists to use. Imported reminders stay in this browser or on this device.</p>
+          <p className="accounts-caption">Choose which lists to use. Imported reminders stay on this device unless you explicitly enable Cloud Storage.</p>
           <p className="accounts-caption">Your Apple ID and Google password are entered only with Apple or Google.</p>
         </> : <div key={provider} className="account-panel">
           <button className="account-back" onClick={() => open("")}><ChevronLeft size={20} aria-hidden="true" /> Accounts</button>
@@ -100,7 +100,7 @@ export default function AccountsSheet({ accounts, onClose }) {
           {provider === "icloud" ? <>
             <section className="accounts-group accounts-note">
               <p>Choose your Apple Reminders lists on an iPhone or iPad using the companion app. Apple asks for Reminders permission, then you review the selected lists before importing them on this device.</p>
-              <p>Nothing is uploaded. Changes to these local copies do not change iCloud.</p>
+              <p>Imports stay on this device unless you enabled Cloud Storage, which encrypts and saves these copies to Cloudflare. Changes to these copies do not change iCloud.</p>
             </section>
             {accounts.nativeAvailable ? <button className="accounts-action" onClick={accounts.importApple}>Choose Lists…</button> : <>
               <p className="accounts-caption">iCloud Reminders access needs the native companion. A web page cannot ask for Apple’s Reminders permission.</p>
@@ -119,10 +119,10 @@ export default function AccountsSheet({ accounts, onClose }) {
               <p className="accounts-caption">This is the public ID of a Google OAuth web app, never a client secret. Its allowed origins must include {window.location.origin}.</p>
               <button className="accounts-action secondary" disabled={busy || !clientId.trim()} onClick={() => accounts.configure(clientId)}>Use Client ID</button>
             </section>}
-            {accounts.nativeAvailable && <section className="accounts-group accounts-note"><p>Google connections need Safari. Google sign-in is not supported inside this companion’s embedded browser.</p><a className="accounts-action secondary" href="https://reminders-web-rea.pages.dev/" target="_blank" rel="noopener noreferrer">Connect Google in Safari</a><p className="accounts-caption">Safari has its own local reminders. Use the iCloud export above to import selected lists there.</p></section>}
+            {accounts.nativeAvailable && <section className="accounts-group accounts-note"><p>Google connections need Safari. Google sign-in is not supported inside this companion’s embedded browser.</p><a className="accounts-action secondary" href="https://reminders-web-rea.pages.dev/" target="_blank" rel="noopener noreferrer">Connect Google in Safari</a><p className="accounts-caption">Safari has separate local reminders. Connect the same Cloud Storage backup to share reviewed copies, or use the iCloud export above to import selected lists there.</p></section>}
             {!state.connected && !accounts.nativeAvailable && <>
               {!accounts.identityReady ? <button className="accounts-action" disabled={busy || !accounts.clientId} onClick={() => accounts.prepare(provider)}>{busy ? "Loading…" : "Connect"}</button> : <button className="accounts-action" disabled={busy} onClick={() => connect()}>{busy ? "Connecting…" : "Continue with Google"}</button>}
-              <p className="accounts-caption">Google opens its own sign-in and consent window. Tokens stay in memory and are cleared when this page closes.</p>
+              <p className="accounts-caption">Google opens its own sign-in and consent window. Tokens stay in memory, are excluded from cloud backups, and are cleared when this page closes.</p>
             </>}
             {state.connected && <>
               <section className="accounts-group" aria-label="Choose lists">

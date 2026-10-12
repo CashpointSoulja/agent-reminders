@@ -94,6 +94,23 @@ struct SyncCoreTests {
         let executableLooking = selectedSnapshot([sampleRecord(title: "</script>\"; window.sample=true; //", notes: "Synthetic script-like text")])
         let inert = try JSONSerialization.jsonObject(with: LocalImportPolicy.encoded(executableLooking)) as! [String: Any]
         check((inert["reminders"] as? [[String: Any]])?.first?["title"] as? String == executableLooking.reminders.first?.title, "Script-like strings remain JSON data")
+        let sections = [NativeSection(id: "sample-b", title: "Sample Second"), NativeSection(id: "sample-a", title: "Sample First")]
+        var sectionList = lists[0]; sectionList.sections = sections
+        var sectionRow = record; sectionRow.sectionID = sections[1].id
+        let sectioned = NativeSnapshot(generatedAt: Date(), sample: true, selectedListIDs: [record.listID], lists: [sectionList], reminders: [sectionRow])
+        let sectionJSON = try JSONSerialization.jsonObject(with: LocalImportPolicy.encoded(sectioned)) as! [String: Any]
+        check(!sectioned.unsupportedFeatures.contains("sections"), "Section-aware source declares supported sections")
+        check(snapshot.unsupportedFeatures.contains("sections"), "Public EventKit source keeps sections unknown")
+        check(((sectionJSON["lists"] as? [[String: Any]])?.first?["sections"] as? [[String: Any]])?.map { $0["id"] as? String } == sections.map { Optional($0.id) }, "Native section order is unchanged")
+        check((sectionJSON["reminders"] as? [[String: Any]])?.first?["sectionID"] as? String == sections[1].id, "Native section membership is unchanged")
+        var invalidMember = record; invalidMember.sectionID = "foreign-section"
+        rejected({ _ = try LocalImportPolicy.encoded(NativeSnapshot(generatedAt: Date(), sample: true, selectedListIDs: [record.listID], lists: [sectionList], reminders: [invalidMember])) }, "Foreign section reference rejects export")
+        sectionList.sections = [sections[0], sections[0]]
+        rejected({ _ = try LocalImportPolicy.encoded(NativeSnapshot(generatedAt: Date(), sample: true, selectedListIDs: [record.listID], lists: [sectionList], reminders: [])) }, "Duplicate section reference rejects export")
+        sectionList.sections = [NativeSection(id: "sample", title: "")]
+        rejected({ _ = try LocalImportPolicy.encoded(NativeSnapshot(generatedAt: Date(), sample: true, selectedListIDs: [record.listID], lists: [sectionList], reminders: [])) }, "Empty native section title rejects export")
+        sectionList.sections = [NativeSection(id: "sample", title: String(repeating: "x", count: 201))]
+        rejected({ _ = try LocalImportPolicy.encoded(NativeSnapshot(generatedAt: Date(), sample: true, selectedListIDs: [record.listID], lists: [sectionList], reminders: [])) }, "Native section title budget enforced")
         print("Native companion: \(passed) synthetic checks passed. No EventKit or Keychain access.")
     }
 }

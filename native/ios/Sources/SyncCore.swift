@@ -10,10 +10,16 @@ private func encodeNativeTimestamp(_ date: Date, encoder: Encoder) throws {
     try container.encode(Int64(milliseconds))
 }
 
+struct NativeSection: Codable, Equatable {
+    let id: String
+    let title: String
+}
+
 struct NativeList: Codable, Equatable {
     let id: String
     let title: String
     let writable: Bool
+    var sections: [NativeSection]? = nil
 }
 
 struct NativeDate: Codable, Equatable {
@@ -53,6 +59,7 @@ struct NativeReminder: Codable, Equatable {
     let priority: Int
     let modifiedAt: Date?
     let recurring: Bool
+    var sectionID: String? = nil
 
     var revision: String {
         let encoder = JSONEncoder()
@@ -71,12 +78,13 @@ struct NativeSnapshot: Encodable {
     let lists: [NativeList]
     let reminders: [NativeReminder]
     let revisions: [String: String]
+    let unsupportedFeatures: [String]
     init(generatedAt: Date, sample: Bool, selectedListIDs: [String], lists: [NativeList], reminders: [NativeReminder]) {
         self.generatedAt = generatedAt; self.sample = sample; self.selectedListIDs = selectedListIDs
         self.lists = lists; self.reminders = reminders
         self.revisions = Dictionary(uniqueKeysWithValues: reminders.map { ($0.id, $0.revision) })
+        self.unsupportedFeatures = ["tags", "subtasks", "flags", "photos", "shoppingCategories", "assignment", "smartListDefinitions", "recurrenceRules", "alarms"] + (lists.contains { $0.sections == nil } ? ["sections"] : [])
     }
-    let unsupportedFeatures = ["tags", "subtasks", "flags", "photos", "shoppingCategories", "sections", "assignment", "smartListDefinitions", "recurrenceRules", "alarms"]
 
     func encoded() throws -> Data {
         let encoder = JSONEncoder()
@@ -136,6 +144,13 @@ enum LocalImportPolicy {
               snapshot.reminders.allSatisfy({ selected.contains($0.listID) && (0...9).contains($0.priority) }) else {
             throw NativeSyncError.invalidSnapshot
         }
+        let sectionsByList = Dictionary(uniqueKeysWithValues: snapshot.lists.map { ($0.id, Set(($0.sections ?? []).map(\.id))) })
+        guard snapshot.lists.allSatisfy({ list in
+            guard let sections = list.sections else { return true }
+            return sections.count <= 200 && Set(sections.map(\.id)).count == sections.count
+        }), snapshot.reminders.allSatisfy({ row in
+            row.sectionID == nil || sectionsByList[row.listID]?.contains(row.sectionID!) == true
+        }) else { throw NativeSyncError.invalidSnapshot }
         func validDate(_ value: Date?) -> Bool {
             guard let value else { return true }
             return value.timeIntervalSince1970.isFinite && abs(value.timeIntervalSince1970) <= 8_640_000_000_000
@@ -151,11 +166,13 @@ enum LocalImportPolicy {
             guard let value else { return true }
             return bounded(value.timeZone, 256) && bounded(value.calendarID, 64)
         }
-        guard snapshot.lists.allSatisfy({ bounded($0.id, 1_024, required: true) && bounded($0.title, 512) }),
+        guard snapshot.lists.allSatisfy({ bounded($0.id, 1_024, required: true) && bounded($0.title, 512)
+                  && ($0.sections ?? []).allSatisfy({ bounded($0.id, 1_024, required: true) && bounded($0.title, 200, required: true) }) }),
               snapshot.reminders.allSatisfy({
                   bounded($0.id, 1_024, required: true) && bounded($0.externalID, 1_024)
                   && bounded($0.listID, 1_024, required: true) && bounded($0.title, 1_024)
                   && bounded($0.notes, 16_384) && bounded($0.url, 4_096)
+                  && bounded($0.sectionID, 1_024)
                   && boundedDate($0.due) && boundedDate($0.start)
               }) else { throw NativeSyncError.importTooLarge }
         let data = try snapshot.encoded()

@@ -1,6 +1,12 @@
 # Self-hosting
 
-Run one personal instance per owner. Start locally with fictional data before deploying or enabling agent/device access.
+Choose the mode you need. The public browser app is local by default and can optionally use an isolated encrypted cloud vault. The separate owner/agent/device API is a single-owner server workspace backed by D1/R2. Start locally with fictional data before deploying or granting real-data access.
+
+| Mode | Storage and authority |
+| --- | --- |
+| Browser-local app | No server workspace; selected account imports stay local until cloud saving is explicitly enabled |
+| Optional private cloud | Client-encrypted document in an isolated SQLite-backed Durable Object; no externally scoped agent execution |
+| Server workspace | Owner sessions, D1 reminder API, private R2 files and opt-in scoped agent/device contracts |
 
 ## Local development
 
@@ -9,6 +15,8 @@ Install Node.js 22.19 or later, then follow the [README](../README.md). Copy `.d
 The API uses local Wrangler D1/R2 bindings. `npm run api:migrate` applies `backend/schema.sql` to the local database. `npm run api:dev` serves port 8787; `npm run start:server` serves the authenticated browser app on 8081 and proxies `/api` to the Worker. Plain `npm start` runs the separate browser-local demo.
 
 `SAMPLE_DATA=1` seeds fictional reminders only when the workspace is first initialized. Setting it later does not overwrite an existing workspace. Choose `SAMPLE_DATA=0` for a new empty instance.
+
+The following D1/R2 setup is for server-workspace mode. The optional public-app cloud mode has its own configuration and does not require a D1 slot or R2 bucket.
 
 ## Configuration
 
@@ -23,6 +31,8 @@ The API uses local Wrangler D1/R2 bindings. `npm run api:migrate` applies `backe
 | `DEVICE_SYNC` | `1` to enable native transport after its schema installation; default `0` |
 | `DB` | Dedicated D1 binding |
 | `FILES` | Private R2 binding for attachments |
+
+Optional encrypted-cloud configuration uses separate names: public `EXPO_PUBLIC_CLOUD_VAULT_URL=/cloud`, exact allowed `APP_ORIGINS`, private `RATE_LIMIT_SECRET`, and `VAULT_STORE` bound to the new SQLite-backed Durable Object. None of these grants agent task execution; recovery codes must never become public build variables.
 
 Do not expose secrets through `EXPO_PUBLIC_*`, browser bundles, URLs, command arguments or logs. Do not commit `.dev.vars`, environment files, database exports or reminders.
 
@@ -80,3 +90,22 @@ npx wrangler d1 execute agent-reminders-data --local --file backend/device-sync-
 For a remote instance, deliberately select `--remote` only after reviewing the target. Then set `DEVICE_SYNC=1` and redeploy. Device writeback still requires an explicit per-list grant; enabling the transport is not permission to modify an Apple account.
 
 Physical-device sync and public EventKit field limits remain acceptance gaps. Do not enable real-data writeback just because the app compiles. See [native sync](NATIVE-SYNC.md).
+
+## Optional private cloud for the browser app
+
+The source implements explicit enablement, device-side encryption, a private recovery capability, two retained encrypted revisions, reconnect preview and deliberate local/cloud conflict choices. It preserves section names/order/membership and safe account provenance already present in the snapshot. It cannot recover absent EventKit sections or photo binaries, and it does not perform provider refresh/writeback or external agent execution.
+
+Use [`wrangler.cloud-vault.example.jsonc`](../wrangler.cloud-vault.example.jsonc) for a new Worker and SQLite-backed Durable Object namespace, and [`wrangler.cloud-pages.example.jsonc`](../wrangler.cloud-pages.example.jsonc) for a Pages release bound only to `CLOUD`. Keep owner/agent/device APIs unbound. Do not deploy this public mode with the root server-workspace `wrangler.jsonc`.
+
+Build demo mode with only the public cloud endpoint and dotenv loading disabled, then prepare its selective cloud artifact:
+
+```sh
+EXPO_NO_DOTENV=1 EXPO_PUBLIC_CLOUD_VAULT_URL=/cloud npm run build:demo
+node scripts/prepare-private-cloud.mjs
+```
+
+Publish the frozen artifact from an isolated directory and exact cloud-only configuration, following [private cloud storage](private-cloud-storage.md). That guide owns the resource setup, secret provisioning, capability API, quotas and release checks. A public Google client ID is separate configuration; a missing client does not prevent local storage or vault encryption.
+
+Current source and synthetic checks do not establish a successful live cloud release. Before claiming availability, verify health, unauthorized denial, isolated encrypted create/save/reload/history/conflict/deletion with disposable data, and that owner/agent/device endpoints remain disabled. Stay within the documented free-tier ceilings; no paid enrollment, unrelated database deletion or reuse of an existing private workspace belongs in this setup.
+
+Real section recovery still needs owner-granted Mac Reminders permission and private-interface acceptance. Cloud saving retains sections supplied by the source; it cannot manufacture their original names or order. See [original sections](native-sections.md) and the [requirements tracker](requirements.md).

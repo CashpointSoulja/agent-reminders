@@ -1,0 +1,14 @@
+{
+  "name": "agent-reminders-private-cloud",
+  "main": "backend/cloud-vault-worker.js",
+  "compatibility_date": "2026-10-12",
+  "workers_dev": false,
+  "preview_urls": false,
+  "durable_objects": { "bindings": [{ "name": "VAULT_STORE", "class_name": "PrivateVaultStore" }] },
+  "migrations": [{ "tag": "vault-v1", "new_sqlite_classes": ["PrivateVaultStore"] }],
+  "vars": {
+    "APP_ORIGINS": "https://reminders-web-rea.pages.dev,https://agent-reminders-demo.pages.dev",
+    "DEV_MODE": "0"
+  },
+  "observability": { "enabled": false }
+}

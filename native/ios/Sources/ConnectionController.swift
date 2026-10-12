@@ -49,10 +49,10 @@ final class ConnectionController: UITableViewController {
             #if targetEnvironment(simulator)
             return "Simulator builds always use synthetic sample data. Connect Apple Reminders only on your own iPhone."
             #else
-            return "Apple requires full Reminders access, even for a preview. Only lists you select are read. Nothing is uploaded."
+            return "Apple requires full Reminders access, even for a preview. Only reminders from lists you select are copied. The preview stays on this device until you confirm an import or upload."
             #endif
         case 2: return "No lists are selected by default. Changing the selection clears the preview."
-        case 3: return status + (importLocally == nil ? "" : " This shares copies with the current web page. The browser demo stores copies on this device. The companion does not upload or change Apple reminders. Refresh by selecting and importing a fresh preview.")
+        case 3: return status + (importLocally == nil ? "" : " Confirmed imports stay on this device unless you enable Cloud Storage. When enabled, the web page encrypts and saves your private copies, keeping two earlier copies for recovery. The companion does not change Apple reminders or send Apple credentials. Restoring a cloud copy does not change Apple reminders. Refresh by selecting and importing a fresh preview.")
         case 4: return pairing.map { "Approve this device on your signed-in server using code \($0.code). No reminder contents are sent by pairing. Then check approval and upload your reviewed preview." } ?? "Pairing shares selected list names for owner approval. Upload sends only the reviewed selected-list preview. Native completion runs only when you choose Sync Task Completions; there is no background execution."
         default: return "Writeback is off until you enable it. Only successfully delegated, unchanged nonrecurring reminders may be completed. Apple may apply its own subtask completion rules; private hierarchy is unavailable. Disconnect revokes this device token without deleting Apple reminders."
         }
@@ -142,7 +142,7 @@ final class ConnectionController: UITableViewController {
             return
         }
         let alert = UIAlertController(title: "Connect Apple Reminders?", message:
-            "iOS will ask for full Reminders access. You choose which lists to preview. Nothing is uploaded, and writeback stays off.", preferredStyle: .alert)
+            "iOS will ask for full Reminders access. You choose which lists to preview. The preview stays on this device until you confirm an import or upload, and writeback stays off.", preferredStyle: .alert)
         alert.addAction(UIAlertAction(title: "Cancel", style: .cancel))
         alert.addAction(UIAlertAction(title: "Continue", style: .default) { [weak self] _ in
             guard let self else { return }
@@ -159,7 +159,7 @@ final class ConnectionController: UITableViewController {
                         self.preview = nil; self.status = "Apple Reminders changed. Preview again."
                         self.tableView.reloadData()
                     }
-                    self.status = "Connected for local preview. Nothing is uploaded."
+                    self.status = "Connected for local preview. No copies are imported or saved until you confirm."
                 } catch { self.showError(error) }
             }
         })
@@ -177,7 +177,7 @@ final class ConnectionController: UITableViewController {
                 guard selection == selectedListIDs else { return }
                 if importLocally != nil { _ = try LocalImportPolicy.encoded(snapshot) }
                 preview = snapshot; let key = UUID().uuidString; previewKey = key
-                status = "Preview contains \(snapshot.reminders.count) reminders from \(snapshot.lists.count) selected lists. Nothing is uploaded."
+                status = "Preview contains \(snapshot.reminders.count) reminders from \(snapshot.lists.count) selected lists. No copies are imported or saved until you confirm."
                 let back = UIBarButtonItem(title: title, style: .plain, target: nil, action: nil)
                 back.accessibilityIdentifier = "device.preview.back"
                 navigationItem.backBarButtonItem = back
@@ -374,7 +374,7 @@ private final class PreviewController: UITableViewController {
     }
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int { snapshot.reminders.count }
     override func tableView(_ tableView: UITableView, titleForFooterInSection section: Int) -> String? {
-        "Local preview only. \(snapshot.sample ? "Synthetic sample data; no Apple account is read. " : "")Tags, subtasks, flags, photos, shopping categories, sections, assignments, smart-list rules, recurrence rules and alarms are not exported by this foundation."
+        "Local preview only. \(snapshot.sample ? "Synthetic sample data; no Apple account is read. " : "")\(snapshot.unsupportedFeatures.contains("sections") ? "Apple’s public Reminders API does not expose sections; use the section-aware Mac export to retain them. " : "Original sections and membership are included. ")Tags, subtasks, flags, photos, shopping categories, assignments, smart-list rules, recurrence rules and alarms are not exported by this foundation."
     }
     override func tableView(_ tableView: UITableView, cellForRowAt path: IndexPath) -> UITableViewCell {
         let record = snapshot.reminders[path.row]
@@ -382,14 +382,16 @@ private final class PreviewController: UITableViewController {
         cell.accessibilityIdentifier = "device.preview.reminder.\(path.row)"
         cell.textLabel?.text = record.title; cell.textLabel?.numberOfLines = 0
         cell.imageView?.image = UIImage(systemName: record.completed ? "checkmark.circle.fill" : "circle")
-        cell.detailTextLabel?.text = snapshot.lists.first { $0.id == record.listID }?.title
+        let list = snapshot.lists.first { $0.id == record.listID }
+        let section = list?.sections?.first { $0.id == record.sectionID }
+        cell.detailTextLabel?.text = [list?.title, section?.title].compactMap { $0 }.joined(separator: " · ")
         cell.selectionStyle = .none
         return cell
     }
     @objc private func confirmLocalImport() {
         guard let importLocally, !importing else { return }
         let alert = UIAlertController(title: "Use \(snapshot.reminders.count) Reminders on This Device?", message:
-            "Share this reviewed selection with the web page at \(origin.absoluteString). That page can read these copies. The browser demo stores them on this device; other instances may handle them differently. The companion does not upload or change Apple reminders.\(snapshot.sample ? " These are fictional sample reminders." : "")", preferredStyle: .alert)
+            "Share this reviewed selection with the web page at \(origin.absoluteString). That page can read these copies. In this app, confirmed imports stay on this device unless you enable Cloud Storage. When enabled, the page encrypts and saves your private copies, keeping two earlier copies for recovery. Other instances may use different storage settings. The companion does not change Apple reminders or send Apple credentials. Restoring a cloud copy does not change Apple reminders.\(snapshot.sample ? " These are fictional sample reminders." : "")", preferredStyle: .alert)
         alert.addAction(UIAlertAction(title: "Cancel", style: .cancel))
         alert.addAction(UIAlertAction(title: "Use on This Device", style: .default) { [weak self] _ in
             guard let self else { return }

@@ -1,0 +1,11 @@
+.cloud-storage-sheet .cloud-summary-row { cursor: default; }
+.cloud-storage-sheet .cloud-overview > .accounts-caption { margin: 0; padding: 4px 16px 14px; }
+.cloud-storage-sheet .cloud-remember { margin: 0; padding: 12px 0; background: transparent; gap: 12px; }
+.cloud-storage-sheet .cloud-remember input { flex: 0 0 auto; }
+.cloud-storage-sheet .cloud-recovery > p { margin: 10px 0; font-size: 15px; line-height: 21px; }
+.cloud-storage-sheet .cloud-code { font: 16px/22px ui-monospace, SFMono-Regular, Menlo, monospace; }
+.cloud-storage-sheet .cloud-code-actions { display: flex; gap: 10px; margin-top: 12px; }
+.cloud-storage-sheet .cloud-code-actions > .accounts-action { display: flex; flex: 1; gap: 8px; min-width: 0; padding-inline: 10px; }
+.cloud-storage-sheet .accounts-preview > .accounts-action + .accounts-action { margin-top: 10px; }
+.cloud-storage-sidebar-status { display: flex; align-items: center; justify-content: flex-start; gap: 5px; min-height: 32px; padding: 0 24px 4px; border: 0; background: transparent; color: #8e8e93; font: 12px/16px -apple-system, BlinkMacSystemFont, sans-serif; cursor: pointer; text-align: left; }
+.cloud-storage-sidebar-status:focus-visible { outline: 3px solid #0a84ff; outline-offset: -3px; border-radius: 8px; }

@@ -4,6 +4,8 @@ The interface keeps the Reminders name, list layout, system fonts and glass shee
 
 Open **More → Accounts** on the Home screen or in the desktop sidebar. Account linking is available in the password-free, browser-local app. It is intentionally unavailable in the shared server workspace so imported personal reminders cannot be uploaded there by autosave.
 
+Import alone stays local. If you later explicitly enable **More → Cloud Storage**, those local copies and safe import mappings are included in your private encrypted cloud document. This is a separate storage service; it neither enables the owner/agent API nor changes the account's original access permissions. See the [cloud user guide](cloud-storage-user-guide.md).
+
 ## Google Calendar and Google Tasks
 
 1. Open **Accounts**, then choose **Google Calendar** or **Google Tasks**.
@@ -13,6 +15,8 @@ Open **More → Accounts** on the Home screen or in the desktop sidebar. Account
 5. Use **Refresh Imported Lists** to fetch the same selected lists again. Reconnect after tokens expire or the page reloads.
 
 The app requests Calendar read permission or Tasks read permission separately. Tokens remain in memory, are never displayed or persisted, and are discarded when the page closes. The public client ID and import mappings can be stored in this browser. The app does not collect Google passwords.
+
+The product's Google OAuth client is still missing. In the latest setup attempts, Google's required CAPTCHA panel rendered blank in both the in-app browser and a dedicated Chrome session. This is an unresolved setup/rendering blocker, not a Google rejection. Real Google consent, API access and completion remain unverified until a client is created and configured.
 
 Calendar imports cover the previous 30 days and next 365 days. Timed events retain their instant and display in the browser's time zone. All-day events use their start date; Google's end date is exclusive. Calendar access is read-only: completing, editing or deleting a local reminder does not alter the calendar event.
 
@@ -49,6 +53,12 @@ The JSON import is bounded to 2 MB and validates the selected list IDs and remin
 
 The native bridge checks the configured origin, main frame and navigation generation before returning data. The browser treats both native events and files as untrusted data and validates them with the same reducer. No Apple ID password is entered in this app. Account settings and credential entry remain with the owner.
 
+### Preserve original sections
+
+The importer now preserves supplied original section names, source order, empty sections and reminder membership. Omitted section fields mean unknown; an older EventKit-only refresh keeps an existing known section layout. A section-aware refresh can repair an earlier flat import using stable source identity without duplicating reminders, while retaining local edits and reporting conflicts.
+
+Public iPhone EventKit does not provide original section metadata. A separately permissioned, read-only Mac helper can supply the shared snapshot format through an installed private interface, but real recovery still awaits the owner's Mac permission and interface acceptance. It does not infer sections from reminder text. See [original sections](native-sections.md) before attempting a recovery. The owner reports a working phone import; that is user-attested and does not prove original sections, full field fidelity or writeback.
+
 Google sign-in is not supported in the companion's embedded browser. Use **Connect Google in Safari**; Safari has separate local storage. Use the selected-list export to import iCloud copies there.
 
 ## Configuration and implementation
@@ -59,12 +69,15 @@ For a configured build, provide `EXPO_PUBLIC_GOOGLE_CLIENT_ID` with a public OAu
 
 App data stays under `reminders-web-v1`; account provenance and source selections stay under `reminders-accounts-v1`. Neither stores OAuth tokens. Provider IDs distinguish imported rows across lists and providers, so refresh does not create duplicates. Exporting a browser backup is an explicit user action and includes personal reminder content.
 
+Optional Cloud Storage encrypts that document and validated provenance before upload. OAuth tokens, Apple credentials and recovery codes are excluded from the backup. Another device must reconnect to Google before refreshing source lists or enabling Tasks completion. Cloud conflict choices operate on saved local copies; they do not edit Apple or Google records. A recovery code grants document access and must not be passed to an external agent as though it were a narrowly scoped task token.
+
 ## Current limits and verification
 
 - A Google OAuth client must be configured for the deployed origin. Until then, the app shows setup rather than a false Connected state.
 - An iPhone companion needs owner-controlled signing/installation and Reminders permission. Cloudflare cannot run EventKit; the companion performs that native operation locally.
-- Apple imports expose the fields supported by public EventKit: title, notes, URL, dates, times, completion and priority. Tags, flags, hierarchy, attachments, smart-list definitions and recurrence rules are not imported. Recurring reminders are copied as reminders without claiming to reproduce their recurrence.
-- Browser storage is per browser/profile, not account-wide cloud storage. Clearing that storage removes local copies.
+- Standard iPhone imports expose the fields supported by public EventKit: title, notes, URL, dates, times, completion and priority. Tags, flags, private hierarchy, attachments, smart-list definitions and recurrence rules are not imported. Recurring reminders are copied as reminders without claiming to reproduce their recurrence. Section-aware snapshot preservation is tested, while genuine private-interface section recovery remains pending.
+- Browser storage is per browser/profile. Optional cloud storage is separately enabled and encrypted; clearing browser storage removes local copies and any recovery code you chose to remember. Keep that code privately before clearing storage.
+- The cloud feature is implemented and has synthetic coverage; current release/live proof is pending. Its routes store encrypted documents and provide no externally scoped agent execution.
 - Synthetic adapter/import tests cover validation, isolation, stable IDs, conflict preservation and completion scope. Real account consent and physical-device behavior require the owner's account/permission and are separate acceptance checks. No real account mutation or exact native pixel parity is claimed by those tests.
 
 The focused browser regression is `node tests/browser/accounts-completion.cjs` against a static browser-local app at `http://127.0.0.1:8083`, or set `ACCOUNTS_TEST_URL` to another local test origin. It uses synthetic OAuth/provider fixtures and blocks private API and real external requests. It verifies that Refresh cannot bypass fresh Import consent, while an explicit Import permits a confirmed completion.

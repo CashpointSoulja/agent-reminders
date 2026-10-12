@@ -33,6 +33,8 @@ import { saveTemplate, useTemplate } from "./src/templates";
 import NativeListSheet from "./src/NativeListSheet";
 import AccountsSheet from "./src/AccountsSheet.jsx";
 import useAccounts from "./src/useAccounts.js";
+import CloudStorageSheet from "./src/CloudStorageSheet.jsx";
+import useCloudStorage from "./src/useCloudStorage.js";
 import "./src/native-details.css";
 import "./src/native-parity.css";
 const KEY = "reminders-web-v1",
@@ -151,6 +153,17 @@ export default function App({
     setRawData(previous => categoriseShopping(typeof update === "function" ? update(previous) : update, previous));
   }
   const accounts = useAccounts({ enabled: !api && !onDataChange, data, setData, onNotice: setNotice });
+  const cloud = useCloudStorage({
+    enabled: !api && !onDataChange && !corrupt,
+    data,
+    accountMetadata: accounts.enabled ? accounts.exportMetadata() : undefined,
+    onNotice: setNotice,
+    onRestore(snapshot) {
+      accounts.restoreMetadata(snapshot.accountMetadata);
+      setRawData(snapshot.data);
+      setView("all"); setHome(true); setSelected(null);
+    },
+  });
   useEffect(() => {
     if (incomingData) setRawData(incomingData);
   }, [incomingData]);
@@ -287,7 +300,7 @@ export default function App({
   useEffect(() => {
     function key(e) {
       if (modal === "agent-assign") return;
-      if (modal === "accounts") {
+      if (["accounts", "cloud-storage"].includes(modal)) {
         if (e.key === "Escape") { e.preventDefault(); setModal(null); }
         return;
       }
@@ -352,7 +365,7 @@ export default function App({
     return () => document.removeEventListener("keydown", key);
   });
   useEffect(() => {
-    if (!modal || modal === "accounts") return;
+    if (!modal || ["accounts", "cloud-storage"].includes(modal)) return;
     const previous = document.activeElement;
     const frame = requestAnimationFrame(() => {
       const dialog = document.querySelector("[role=dialog]");
@@ -425,6 +438,7 @@ export default function App({
           <Text dataSet={{ ui: "local-label" }}>On this device</Text>
         </View>
       )}
+      {cloud.enabled && cloud.connected && <button className="cloud-storage-sidebar-status" data-ui="cloud-storage-status" onClick={() => setModal("cloud-storage")} aria-label={`Cloud Storage: ${cloud.status}`}><span aria-hidden="true">☁</span> {cloud.status}</button>}
       {(!phone || homeSearch) && (
         <View dataSet={{ ui: "search" }}>
           <Icon name="search" size={17} />
@@ -1154,12 +1168,12 @@ export default function App({
           }}
         >
           <div
-            className={`modal ${modal === "accounts" ? "native-accounts-modal" : ""} ${modal === "detail" ? "detail-modal" : ""} ${modal === "quick-entry" ? "native-quick-entry-modal" : ""} ${modal === "agent-assign" || modal === "list" || (typeof modal === "object" && modal.type === "list") ? "native-list-modal" : ""} ${["save-template", "templates"].includes(modal) ? "native-template-modal" : ""} ${phone && ["home-menu", "list-menu", "sort-menu"].includes(modal) ? "native-list-menu" : ""}`}
+            className={`modal ${["accounts", "cloud-storage"].includes(modal) ? "native-accounts-modal" : ""} ${modal === "detail" ? "detail-modal" : ""} ${modal === "quick-entry" ? "native-quick-entry-modal" : ""} ${modal === "agent-assign" || modal === "list" || (typeof modal === "object" && modal.type === "list") ? "native-list-modal" : ""} ${["save-template", "templates"].includes(modal) ? "native-template-modal" : ""} ${phone && ["home-menu", "list-menu", "sort-menu"].includes(modal) ? "native-list-menu" : ""}`}
             role={
-              ["accounts", "detail", "quick-entry", "list", "save-template", "templates"].includes(modal) || (typeof modal === "object" && modal.type === "list") ? undefined : "dialog"
+              ["accounts", "cloud-storage", "detail", "quick-entry", "list", "save-template", "templates"].includes(modal) || (typeof modal === "object" && modal.type === "list") ? undefined : "dialog"
             }
             aria-modal={
-              ["accounts", "detail", "quick-entry", "list", "save-template", "templates"].includes(modal) || (typeof modal === "object" && modal.type === "list") ? undefined : "true"
+              ["accounts", "cloud-storage", "detail", "quick-entry", "list", "save-template", "templates"].includes(modal) || (typeof modal === "object" && modal.type === "list") ? undefined : "true"
             }
             aria-label={
               modal === "detail"
@@ -1171,6 +1185,8 @@ export default function App({
           >
             {modal === "accounts" && accounts.enabled ? (
               <AccountsSheet accounts={accounts} onClose={() => setModal(null)} />
+            ) : modal === "cloud-storage" && cloud.enabled ? (
+              <CloudStorageSheet cloud={cloud} data={data} onExport={() => download(JSON.stringify(data, null, 2), "reminders-backup.json")} onClose={() => setModal(null)} />
             ) : modal === "detail" ? (
               detail
             ) : modal === "quick-entry" ? (
@@ -1324,6 +1340,7 @@ export default function App({
                   Templates
                 </button>
                 {accounts.enabled && <button role="menuitem" onClick={() => { accounts.clearMessages(); setModal("accounts"); }}>Accounts</button>}
+                {cloud.enabled && <button role="menuitem" onClick={() => setModal("cloud-storage")}>Cloud Storage</button>}
               </div>
             ) : modal === "list-menu" ? (
               <div role="menu" aria-label="List actions">

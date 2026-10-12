@@ -7,6 +7,13 @@ const CLIENT_KEY = "reminders-google-client-id";
 const PROVIDERS = ["google-calendar", "google-tasks"];
 const empty = emptyAccountProvenance;
 
+export function accountMetadataSnapshot(provenance, selections, importInfo = {}) {
+  const value = { version: 1, provenance, selections, importInfo };
+  const parsed = parseAccountMetadata(JSON.stringify(value));
+  if (parsed.version !== 1) throw new Error("Account links are invalid. Your local reminders have not been changed.");
+  return parsed;
+}
+
 export function parseAccountMetadata(raw) {
   const fallback = () => ({ provenance: empty(), selections: {} });
   try {
@@ -103,7 +110,7 @@ export default function useAccounts({ enabled, data, setData, onNotice }) {
       try {
         const snapshot = normalizeICloudSnapshot(event.detail);
         importSnapshot(snapshot);
-        setStatus(`${snapshot.lists.length} ${snapshot.sample ? "sample " : ""}lists imported on this device. Nothing was uploaded.`);
+        setStatus(`${snapshot.lists.length} ${snapshot.sample ? "sample " : ""}lists imported on this device. Cloud copies are saved only if Cloud Storage is enabled.`);
       } catch (failure) { setError(failure?.message || "The Apple Reminders import was not valid. Try again."); }
     }
     window.addEventListener("rea:apple-reminders-import", nativeImport);
@@ -112,6 +119,22 @@ export default function useAccounts({ enabled, data, setData, onNotice }) {
 
   return {
     enabled, clientId, states, sources, previews, busy, error, status, importInfo, nativeAvailable, identityReady, completionReady, completionIntent,
+    exportMetadata: () => accountMetadataSnapshot(provenance.current, selections.current, importInfo),
+    restoreMetadata(value) {
+      const next = value === undefined
+        ? accountMetadataSnapshot(empty(), {}, {})
+        : accountMetadataSnapshot(value.provenance, value.selections, value.importInfo);
+      if (value !== undefined && (value.version !== 1 || Object.keys(value).some(key => !["version", "provenance", "selections", "importInfo"].includes(key)))) throw new Error("The cloud account links are invalid. Your local reminders have not been changed.");
+      generation.current++;
+      operationPending.current = false;
+      pendingCompletions.current.clear();
+      google.current.disconnect();
+      saveMetadata(next.provenance, next.selections, next.importInfo);
+      setImportInfo(next.importInfo);
+      setBusy(""); setSources({}); setPreviews({}); setError(""); setStatus("");
+      setIdentityReady(false); setCompletionReady(false); setCompletionIntent(false);
+      updateStates();
+    },
     sourceForReminder: id => accountSourceForReminder(provenance.current, id),
     selectedSources: provider => selections.current[provider] || [],
     clearMessages() { setError(""); setStatus(""); },
