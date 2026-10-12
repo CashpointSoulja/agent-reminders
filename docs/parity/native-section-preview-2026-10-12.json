@@ -1,0 +1,61 @@
+{
+  "schemaVersion": 1,
+  "date": "2026-10-12",
+  "kind": "reviewed-native-section-preview",
+  "source": {
+    "publicBaselineCommit": "de3667fa1b00d2d44f7b93e91f708218f0f3d26f",
+    "helperSourceSHA256": "2dc99406b2eb287e3bdc4f82231f3bc5ec791a894a05e7f7e0558d6be8890641",
+    "helperPath": "native/ios/mac-sections/SectionExport.m",
+    "syntheticChecksPassed": 24
+  },
+  "acceptance": {
+    "ownerMacPermissionConfirmed": true,
+    "freshPrivateListInterfaceAccepted": true,
+    "ownerSelectedScopeConfirmed": true,
+    "selectedSourceListCount": 11,
+    "actualPreviewMarker": "selected-preview-validated-awaiting-owner-export",
+    "sourceSectionDefinitionsValidated": true,
+    "nativeReminderMembershipValidated": true,
+    "nativePublicReminderUUIDCrosswalkValidated": true,
+    "nativeOrderCoverageValidated": true,
+    "postFetchSourceRecheckValidated": true,
+    "ownerVisualHeadingOrderConfirmed": true,
+    "ownerPrivateExportConfirmed": true,
+    "phoneSectionedImportConfirmed": true,
+    "ownerPrivateCloudBackupConfirmed": true,
+    "exactNativePixelParityApproved": false
+  },
+  "narrowFix": {
+    "method": "fetchListSectionWithReminderID:error:",
+    "domain": "com.apple.reminderkit",
+    "code": -3009,
+    "requiresNilSectionResult": true,
+    "meaning": "noSuchUserDefinedSectionForReminderWithObjectID",
+    "onlyPerReminderLookupHandled": true,
+    "sameErrorAtOtherStagesRejected": true,
+    "foreignDomainAndEntitlementErrorsRejected": true
+  },
+  "privacy": {
+    "sourceNamesOrIdentifiersInReport": false,
+    "reminderContentInReport": false,
+    "credentialsInReport": false,
+    "screenshotsInReport": false,
+    "agentCreatedRealReminderExport": false,
+    "agentReadOrCopiedRealExport": false,
+    "originalAppleRemindersModified": false,
+    "scopeStoredOnlyOwnerPrivateMode0600": true,
+    "syntheticRunsCannotWriteActualAcceptanceMarker": true
+  },
+  "limits": [
+    "Actual preview is a distinct new checkpoint; earlier Cloudflare release and failed native checkpoints remain historical.",
+    "Native heading/order review, phone import and Saved-to-Cloud are owner-attested; exact native pixels and continuous two-way sync remain unapproved.",
+    "No real export file, source names, record IDs, notes or device/account identifiers are included."
+  ],
+  "ownerAttestation": {
+    "phoneSections": "Sections imported correctly",
+    "phoneCloudStatus": "Saved to Cloud",
+    "headingsOrderAndPrivateFileReviewOwnerHandled": true,
+    "agentIndependentlyReadOwnerExport": false,
+    "agentReadRecoveryKeyOrOwnerCloudBody": false
+  }
+}

@@ -12,8 +12,8 @@ This roadmap distinguishes implemented source from acceptance work. It is not a 
 - An opt-in iOS companion and selected-list transport, with synthetic core/client tests.
 - A browser-local fictional playground that does not share a private workspace.
 - Selected Google Calendar/Tasks imports, conflict-preserving refreshes, opt-in Tasks completion and reviewed iCloud local/file imports. Deployment still needs its own Google OAuth web client; signed-device and real-account acceptance are separate checks.
-- Section-aware snapshot/import contracts preserve supplied original names, order, empty sections and membership, and can repair old flat copies without duplicating identities. Real Mac section recovery awaits permission and private-interface acceptance.
-- Optional client-encrypted Cloudflare document storage, private recovery, bounded history and explicit cross-device conflict choices. Source/synthetic checks are implemented; current live release proof is pending. This service does not enable the separately scoped agent API.
+- Section-aware import contracts preserve original metadata. The actual approved native preview validates definitions, membership, native/public UUID mapping, order and source rechecks; owner phone import is USER-ATTESTED. Broader compatibility and full native parity remain open.
+- Optional encrypted cloud storage, private recovery, bounded history and conflict choices. The [live release](cloud-release-2026-10-12.md) passes synthetic gates; owner phone “Saved to Cloud” is later USER-ATTESTED. The separately scoped agent API remains disabled on the public sites.
 
 ## Next acceptance work
 
@@ -22,8 +22,8 @@ This roadmap distinguishes implemented source from acceptance work. It is not a 
 3. Install and test named external agent runtimes against the public HTTP contract, including durable operation intent and remote-action retry reconciliation.
 4. Validate maximum-workspace CPU/queries/storage against the chosen Cloudflare plan and improve backup/restore before using sensitive data.
 5. Extend public-field native mapping where available. Disclose private-API limitations rather than inventing full iCloud sync.
-6. Verify the isolated encrypted-cloud release with disposable documents, unauthorized denial, persistence/history/conflict/deletion, browser consent and continued owner/agent API disablement. Keep the old private workspace and unrelated Cloudflare resources separate.
-7. Complete permissioned Mac section recovery and compare original section names, order and membership without recording private contents. The reported phone import is user-attested, not proof of complete source metadata or writeback.
+6. Verify independent cross-device restoration and monitor quota/failure behaviour. Phone enablement is owner-attested; keep the old private workspace and unrelated Cloudflare resources separate.
+7. Extend private-interface/identity compatibility beyond the accepted native selection and retain fail-closed tests. Current original-section preview validation and owner heading/order/import confirmation do not establish complete field or writeback parity.
 8. Resolve the Google OAuth setup blocker: its required CAPTCHA panel rendered blank in both browser attempts, so no product client ID was created. This is not a rejection; real consent and provider actions remain unverified.
 
 ## Later agent layer

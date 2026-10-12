@@ -26,7 +26,7 @@ Google Identity Services supplies short-lived access tokens through explicit pro
 
 Provider snapshots pass through a bounded shared import reducer. Stable source identifiers prevent duplicate imports; separate local provenance enables a three-way refresh that preserves local edits and missing source records. No provider credentials are saved with reminders or provenance. Browser storage is local to the profile, not encrypted against another person using that profile.
 
-Section-aware snapshots preserve names, source order, empty sections and reminder membership. Omitted section fields mean unknown, so an older EventKit snapshot cannot erase an existing section layout. Public EventKit does not supply the missing original section metadata. The separate local Mac helper needs owner-granted permission and private-interface acceptance before a genuine section-aware snapshot can be claimed. See [original sections](native-sections.md).
+Section-aware snapshots preserve names, source order, empty sections and reminder membership. Omitted fields mean unknown, so older EventKit snapshots cannot erase known layouts. Public EventKit cannot supply original section metadata. The separate permissioned Mac helper now has actual selected-preview validation of definitions, membership, native/public UUID mapping, order and source rechecks. Owner export/phone import is user-attested; portability beyond that reviewed selection remains separate. See [original sections](native-sections.md) and [latest acceptance](parity/native-section-preview-2026-10-12.json).
 
 The companion's main-frame, same-origin bridge offers reviewed EventKit snapshots to the local app. Navigation generation and document checks prevent delivery into another destination. A separately confirmed JSON export lets the user import selected iCloud lists into Safari, where Google sign-in is available. EventKit, Google and local storage do not share a transaction, and these are manual foreground refreshes rather than background synchronization.
 
@@ -48,7 +48,7 @@ The vault preserves sections and memberships already present in the imported doc
 
 Connecting another device presents a preview and requires a deliberate choice before replacing local data or uploading a local version. Revision conflicts stop automatic saves. Current plus two previous encrypted revisions support bounded restoration, not a comprehensive backup system. This is manual-review cross-device storage, not continuous provider synchronization or externally scoped agent execution.
 
-The optional cloud Pages configuration binds only the storage service under `/cloud/*` and keeps owner/agent/device endpoints disabled. Its separate deployment and free-tier limits are described in [private cloud storage](private-cloud-storage.md). The isolated Worker is deployed service-only; Pages binding, current browser UI and full live-release proof remain pending.
+Both public releases bind only the storage service under `/cloud/*` and keep owner/agent/device endpoints disabled. Preview bindings/Pages secrets are absent. The isolated Worker has scoped synthetic live proof in the [release receipt](cloud-release-2026-10-12.md); the owner subsequently reported “Saved to Cloud” on the imported phone. That is attestation, not agent physical/cloud-body readback. Deployment/free-tier limits are in [private cloud storage](private-cloud-storage.md).
 
 ## Authentication and authority
 

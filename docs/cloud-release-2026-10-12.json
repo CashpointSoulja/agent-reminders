@@ -1,0 +1,57 @@
+{
+  "projects": [
+    {
+      "project": "reminders-web-rea",
+      "deployment": "dd687765-13b2-4ade-b423-644b048f3427",
+      "sourceCommit": "de3667fa1b00d2d44f7b93e91f708218f0f3d26f",
+      "servedAssetsMatched": 28,
+      "cloudOnlyBinding": true,
+      "previewBindings": 0,
+      "environmentSecrets": 0,
+      "health200Configured": true,
+      "ownerAgentDeviceApisDisabled": true
+    },
+    {
+      "project": "agent-reminders-demo",
+      "deployment": "a69aee9b-1d9e-439b-8beb-82531e1b0511",
+      "sourceCommit": "de3667fa1b00d2d44f7b93e91f708218f0f3d26f",
+      "servedAssetsMatched": 28,
+      "cloudOnlyBinding": true,
+      "previewBindings": 0,
+      "environmentSecrets": 0,
+      "health200Configured": true,
+      "ownerAgentDeviceApisDisabled": true
+    }
+  ],
+  "artifactSha256": "be9aab656e7278b73a1909aade34ea7e50d7e78844afc6120539ac0f021de5c9",
+  "backendVersion": "36628769-2525-4940-a609-1c9aa29c2dbc",
+  "backendWorkersDevDisabled": true,
+  "originalPrivateWorkerUnchanged": true,
+  "syntheticLiveAcceptance": {
+    "syntheticOnly": true,
+    "passed": [
+      "cloud health configured",
+      "owner API remains disabled",
+      "owner API writes denied",
+      "anonymous private read denied",
+      "encrypted create",
+      "server response contains encrypted section data",
+      "authorized decrypt and sections preserved",
+      "idempotent initial retry",
+      "wrong workspace capability denied",
+      "guarded save",
+      "stale overwrite denied",
+      "history decrypt",
+      "two previous revisions retained",
+      "foreign origin denied",
+      "only synthetic workspace deleted and absence verified"
+    ],
+    "checks": 15,
+    "ownedSyntheticCleanup": true,
+    "ownerRecordsAccessed": false
+  },
+  "ownerBackupActivated": false,
+  "ownerRecordsReadByRoot": false,
+  "googleClientConfigured": false,
+  "realNativeSectionRecoveryVerified": false
+}

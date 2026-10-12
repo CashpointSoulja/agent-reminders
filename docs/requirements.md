@@ -2,13 +2,15 @@
 
 Current owner scope, 12 October 2026. This tracker describes source and named evidence separately from live availability. It contains no real reminder contents, account identifiers, credentials, device IDs or private screenshots.
 
-**Current release boundary:** browser-local account import is released. The new isolated encrypted Worker is deployed as a service-only storage backend; Pages binding, browser UI and full live storage proof are still pending. Owner/agent/device API routes remain disabled on the public playground. Exact native parity is incomplete. Phone import is user-attested; genuine Mac section recovery remains unaccepted.
+**Current release boundary:** optional encrypted Cloud Storage is live on both public sites from runtime `de3667fa1b00d2d44f7b93e91f708218f0f3d26f`. Both match all 28 frozen assets and bind only `CLOUD`; preview bindings/Pages secrets are absent. Fifteen synthetic live API and six live UI checks pass with cleanup. A later actual selected native preview validates section definitions, membership, UUID mapping, order and source rechecks. The owner reported **“Sections imported correctly”** and **“Saved to Cloud”** on the phone: these are **USER-ATTESTED**, without agent physical/cloud-body readback. [Latest native/owner receipt](parity/native-section-preview-2026-10-12.json) supersedes the older frozen JSON's false acceptance flags; it does not rewrite them. Owner/agent/device APIs remain disabled. Exact native parity, Google OAuth, full writeback and external-runtime acceptance remain open.
 
 Status meanings:
 
 - **PARTIAL** — useful source exists, but an owner requirement or acceptance gate remains open.
 - **TESTED · synthetic** — the named contract passes fictional fixtures; real-account or native equality is not implied.
 - **IMPLEMENTED** — source exists; release/live proof remains separate.
+- **VERIFIED · synthetic live** — the named production path passes disposable fictional data; owner-data activation or broader acceptance is not implied.
+- **VERIFIED · selected native** — actual reviewed native source checks pass for that selection; full device/account parity is not implied.
 - **USER-ATTESTED** — the owner reported the result; it was not independently verified by the automated checks.
 - **PENDING / BLOCKED** — required work or an external setup/permission gate is outstanding.
 - **DEFERRED** — explicitly later work; no current implementation/deployment claim.
@@ -38,11 +40,11 @@ Status meanings:
 
 | ID | Requirement | Status | Evidence and remaining work |
 | --- | --- | --- | --- |
-| AC-01 | Reviewed selected iCloud import on the phone | USER-ATTESTED | Owner reports the phone import worked. Synthetic bridge/import checks exist; this is not automated complete field, Keychain or writeback acceptance. |
+| AC-01 | Reviewed selected iCloud import on the phone | USER-ATTESTED | After reviewing original headings/order and handling the private export/import, owner reported “Sections imported correctly.” No agent read the real export/phone data; complete field, Keychain and writeback acceptance remain separate. |
 | AC-02 | Manual account refresh preserves edits, identity and missing records | TESTED · synthetic | Import reducer and fictional provider/browser checks cover three-way conflict handling, stable identity and consent. Real-account refresh acceptance remains separate. |
 | AC-03 | Original section names, order, empty sections and memberships survive import/reload | TESTED · synthetic | Section-aware snapshot/reducer checks exist; original real sections still need a genuine section-aware source. See [native sections](native-sections.md). |
 | AC-04 | Repair old flat imports without duplicates; preserve local section edits | TESTED · synthetic | Stable source mapping and section-aware refresh are checked. An EventKit-only snapshot marks sections unknown and cannot erase known sections. |
-| AC-05 | Recover actual original sections from the synced Mac | BLOCKED | Read-only helper compiles and its 15 synthetic checks pass. Owner macOS permission and installed private-interface/identity/order acceptance remain outstanding; no real section export is claimed. |
+| AC-05 | Recover actual original sections from the synced Mac | VERIFIED · selected native; phone USER-ATTESTED | Actual approved native preview validates original definitions, membership, native/public reminder UUID mapping, order coverage and post-fetch source rechecks; 24 synthetic helper checks pass. Owner privately exported/imported and confirmed phone headings/order. No Apple source writes or agent export/key/body read; broader compatibility is open. |
 | AC-06 | No invented or inferred original Apple sections | IMPLEMENTED | Unknown source fields remain unknown; section membership is never guessed from titles, tags or notes. Private-interface failures reject export. |
 | AC-07 | Google Calendar and Tasks OAuth connection | BLOCKED | APIs are enabled, but no product OAuth support group/client was created. The required CAPTCHA panel was blank in both the in-app browser and dedicated Chrome; Create remained disabled. This was not a rejection. Exact rendering cause is unverified. |
 | AC-08 | Google Calendar read-only import and optional selected Tasks completion | TESTED · synthetic | Permission, preview/import, paging/version and completion-consent tests exist. Real Google consent, API access and completion await the client and provider acceptance. |
@@ -53,19 +55,20 @@ Status meanings:
 
 | ID | Requirement | Status | Evidence and remaining work |
 | --- | --- | --- | --- |
-| CF-01 | Cloudflare-hosted app with a private per-user storage path | PARTIAL | Browser app is released; isolated encrypted Worker is deployed service-only. Pages cloud binding and current live UI/storage proof are pending. |
-| CF-02 | Explicit enablement; no upload just from opening the app or Accounts | IMPLEMENTED | Cloud controls require an explicit action and preview/restore choices. Synthetic contracts exist; fresh live browser proof is pending. |
-| CF-03 | Encryption, private recovery and isolated documents | TESTED · synthetic | Device-side HKDF/AES-GCM, scoped capability verifier, tamper/wrong-key/tenant tests and strict transport are implemented. Recovery codes remain private; live isolation proof is pending. |
-| CF-04 | Preserve sections, subtasks, fields, templates and safe import provenance | TESTED · synthetic | Validated encrypted snapshots retain metadata already present. They exclude OAuth credentials/recovery codes and cannot recover missing native metadata or photo binaries. |
-| CF-05 | Cross-device preview, deliberate version choice and revision conflicts | IMPLEMENTED | Reconnect preview, use-cloud/keep-local choices and CAS are implemented/tested with fictional documents. Full live two-device UI proof remains pending. |
-| CF-06 | Save/reload, retry, bounded history and explicit restoration | TESTED · synthetic | Storage/client checks cover guarded writes, lost setup response, retained revisions and rollback. Current live acceptance remains pending. |
+| CF-01 | Cloudflare-hosted app with a private per-user storage path | VERIFIED · synthetic live; owner USER-ATTESTED | Both sites pass the frozen `CLOUD`-only release checks. Owner subsequently enabled the already-imported phone vault and reported “Saved to Cloud”; no agent inspected the real cloud body. |
+| CF-02 | Explicit enablement; no upload just from opening the app or Accounts | VERIFIED · synthetic live | Explicit cloud actions and preview/restore choices exist; fresh live UI has no automatic cloud/API requests or initial console errors. |
+| CF-03 | Encryption, private recovery and isolated documents | VERIFIED · synthetic live | Live create/read/decrypt, wrong-capability, foreign-Origin and anonymous-denial checks pass with synthetic data; keys/tamper/tenant contracts have unit coverage. Recovery codes remain private. |
+| CF-04 | Preserve sections, subtasks, fields, templates and safe import provenance | TESTED · synthetic | Snapshot contracts retain supplied metadata; the live encrypted section roundtrip passes. Credentials and photo bytes are excluded; genuine missing native sections cannot be recovered by storage. |
+| CF-05 | Cross-device preview, deliberate version choice and revision conflicts | PARTIAL | Synthetic UI/reconnect choices and live CAS/conflict gates pass; phone enablement is owner-attested. Actual restoration on another device and full real-data reconciliation remain unverified. |
+| CF-06 | Save/reload, retry, bounded history and explicit restoration | VERIFIED · synthetic live | Fifteen live API checks include guarded save/read/decrypt, idempotent initial retry, stale-write denial and two prior encrypted revisions; scoped UI/contract checks pass. This is bounded recovery, not a full binary backup. |
 | CF-07 | Durable Objects, D1 and R2 boundaries | IMPLEMENTED | New browser-cloud storage uses a separate SQLite-backed Durable Object. D1/R2 belong to the independently self-hosted owner/agent API; no unrelated database reuse/deletion is required. |
 | CF-08 | Free-tier-only operation and resource limits | PARTIAL | Explicit document/workspace/rate ceilings and Free-compatible architecture exist. No paid enrollment is requested; actual request/query/CPU usage and account quota availability still need ongoing verification. |
-| CF-09 | Private data auth gate | PARTIAL | Cloud documents require their derived capability and allowed Origin; server workspace uses owner sessions. Public UI is open with no shared data. Live unauthorized denial remains a release gate. |
+| CF-09 | Private data auth gate | VERIFIED · synthetic live | Derived capability and Origin guards deny anonymous, wrong-capability and foreign-Origin reads/writes in the named live checks. Server workspace sessions remain separate; public UI does not expose shared records. |
 | CF-10 | Cloudflare Access if appropriate | PENDING | Access is not provisioned. Current storage capability/owner-session gates are separate and must not be described as Access. |
-| CF-11 | Public release keeps owner/agent/device APIs disabled | PARTIAL | Selective `/cloud/*` proxy and disabled metadata are implemented/tested. Verify current production/preview bindings and endpoints after publishing. |
-| CF-12 | No secrets, real reminders or private captures in Git | IMPLEMENTED | Source uses placeholders and synthetic fixtures. Real exports/recovery codes stay private; root must repeat the source/artifact privacy gate before pushing the release. |
-| CF-13 | Production readiness and complete live acceptance | PENDING | Fresh deployment/UI/storage, maximum-size behaviour, recoverability and remaining native/provider gates prevent a complete production-ready claim. |
+| CF-11 | Public release keeps owner/agent/device APIs disabled | VERIFIED · synthetic live | Both production sites bind only the selective cloud service; preview bindings and Pages environment secrets are absent. Live owner API reads/writes are denied; existing private backend is unchanged. |
+| CF-12 | No secrets, real reminders or private captures in Git | IMPLEMENTED | Source uses placeholders/synthetic fixtures; sanitized release proof excludes private content and owned test vault cleanup is verified. Final commit/artifact privacy review remains root-owned. |
+| CF-13 | Production readiness and complete live acceptance | PARTIAL | Scoped release/UI/storage and selected-section gates pass; maximum-usage, cross-device restoration and native/provider/runtime gaps prevent a complete production-ready claim. |
+| CF-14 | Save the owner's imported phone reminders to the private vault | USER-ATTESTED | Owner enabled Cloud Storage in the already-imported phone companion and reported “Saved to Cloud.” Recovery/export/cloud body stayed private; no agent physical readback or cloud-body inspection. The prior unactivated flag remains historical in frozen release JSON. |
 
 ## APIs, agents, BYOK and documentation
 
@@ -84,4 +87,6 @@ Status meanings:
 
 ## Next gates
 
-Root will append the final frozen source, local/browser checks and live release results when available. The immediate open gates are cloud Pages/UI acceptance, real Mac section permission/private-interface recovery and Google OAuth client creation. Exact native parity, real provider consent, full native fields, external vendor execution and comprehensive production readiness remain open after those scoped gates pass.
+The [final release receipt](cloud-release-2026-10-12.md) and [sanitized JSON](cloud-release-2026-10-12.json) record frozen source and scoped local/live results. Public Node has 201 passes/one optional skip; private-source Node has 200 passes/one optional skip. Local browser six-check acceptance passes twice, live UI six-check acceptance and fifteen actual synthetic live API checks pass; these overlapping totals are not a single combined score.
+
+Selected Mac section validation is complete within its reviewed scope; owner phone import/cloud-save paths are closed as USER-ATTESTED. The next gates are Google OAuth client creation/real consent, independent cross-device restoration and broader native/provider/runtime acceptance. Exact native parity, complete fields, hardware completion writeback, named external agents and full production readiness remain open. The historical frozen cloud JSON stays unchanged; [latest acceptance](parity/native-section-preview-2026-10-12.json) records the new state without private data.

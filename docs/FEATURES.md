@@ -6,7 +6,7 @@ This inventory distinguishes source, the public app and acceptance. A tested dom
 | --- | --- | --- |
 | Lists, colours, icons and emoji | Browser UI, domain model and server source | Native sheet/picker/icon pixel equality incomplete |
 | Smart views, search and filters | Browser views and tested predicates | Complete native filters, counts and per-platform interaction acceptance |
-| Sections, ordering and sorting | Web organisation and section-aware import contract | Genuine original Mac section recovery awaits permission/private-interface acceptance |
+| Sections, ordering and sorting | Web organisation; actual selected Mac definition/membership/UUID/order validation and owner-attested phone import | Broader private-interface portability and complete native UI parity remain open |
 | Original section refresh | Supplied source names/order/membership retained; unknown fields do not erase known sections | Public EventKit cannot supply absent metadata; no guessed reconstruction |
 | Shopping lists | Local English vocabulary and remembered manual choices | Apple's downloaded classifier and full native behaviour are not reproduced |
 | Title, notes and URL | Editable, persisted and validated | Exact native capture/focus/copy flows remain open |
@@ -21,7 +21,7 @@ This inventory distinguishes source, the public app and acceptance. A tested dom
 | Google Calendar import | Read-only selected preview/import and manual refresh source | Product OAuth client, real consent and provider acceptance pending |
 | Google Tasks import/completion | Selected import; completion requires separate permission and fresh review | Synthetic checks pass; real consent/version/completion acceptance pending |
 | iCloud local import/export | Reviewed companion/file snapshots | Phone import user-attested; full private fields, recurrence and hardware acceptance incomplete |
-| Private encrypted cloud | Client encryption, private recovery, bounded history and conflict choices | Current Pages/UI/live release proof pending; provider tokens and photo bytes excluded |
+| Private encrypted cloud | Encryption/recovery/history/conflicts; synthetic live proof and later owner-attested phone save | Independent cross-device restoration and physical/cloud-body readback remain unverified; tokens/photo bytes excluded |
 | Owner API | Cookie authentication, revisions, CRUD, events and private files | Separate self-hosted mode; public playground API disabled |
 | Agent API | Discovery/OpenAPI, scoped tokens, assignment, claim/heartbeat and evidence receipt | Public cloud storage does not enable execution; named runtimes/live executor unverified |
 | Native completion bridge | Versioned selected-list transport and journal source | Real EventKit/Keychain/completion effects unaccepted |

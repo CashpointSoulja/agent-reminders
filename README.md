@@ -23,7 +23,7 @@ Organise lists, dates, notes and subtasks, then explicitly delegate selected rem
 
 Google Calendar and Google Tasks need a public OAuth web client configured for this origin. The product client is not yet created: Google's required CAPTCHA panel rendered blank in both browser setup attempts; this was a setup blocker, not a provider rejection. iCloud lists need the companion's system permission and a reviewed local import or browser export. See [account linking](docs/account-linking.md). These are manual refreshes; Calendar and iCloud copies do not write back to their source.
 
-Optional **More → Cloud Storage** is implemented for private, client-encrypted backups across devices. Opening the app does not upload reminders; enabling it is explicit, and the recovery code stays private. The isolated Worker is deployed; Pages/UI and full live-release proof remain pending for this change. See the [cloud user guide](docs/cloud-storage-user-guide.md) and [requirements](docs/requirements.md).
+Optional **More → Cloud Storage** is live for private, client-encrypted backups across devices. Opening the app does not upload reminders; enabling it is explicit, and the recovery code stays private. Both public sites pass scoped synthetic API/UI checks. The owner subsequently reported **“Saved to Cloud”** on the already-imported phone; that is user-attested, with no agent inspection of real phone/cloud data. See the [release receipt](docs/cloud-release-2026-10-12.md), [cloud user guide](docs/cloud-storage-user-guide.md) and [requirements](docs/requirements.md).
 
 Externally scoped agent execution and private R2 attachments require the separate server-backed instance described below. Encrypted cloud storage does not enable those APIs.
 
@@ -40,7 +40,7 @@ Externally scoped agent execution and private R2 attachments require the separat
 - Browser-local Google Calendar/Tasks imports and reviewed iCloud imports, with conflict preservation and separately enabled Google Tasks completion.
 - Optional encrypted Cloudflare storage of reminders, original sections when supplied, templates and safe import mappings; explicit cross-device preview and conflict choices.
 
-Agent and device server features are separate opt-ins. The public playground does not provide their server authority. Shopping categorisation uses a local English vocabulary; it does not reproduce Apple's classifier. Section-aware imports preserve source names, order and membership, while public EventKit alone cannot recover missing original sections; [Mac recovery](docs/native-sections.md) still awaits permission and private-interface acceptance.
+Agent and device server features are separate opt-ins. The public playground does not provide their server authority. Shopping categorisation uses a local English vocabulary; it does not reproduce Apple's classifier. Public EventKit alone cannot recover original sections; the selected Mac native preview now validates definitions, membership, UUID mapping and order, and the owner confirmed the phone import retained the original headings/order. See [native sections](docs/native-sections.md) for this limited acceptance and compatibility gaps.
 
 ## Run locally
 
@@ -124,7 +124,7 @@ The original public release passed 153 automated tests and browser checks for sa
 
 The recorded account-linking release passed 173 tests and live browser checks. See [verification scope](docs/account-verification.md) for those precise runs and remaining provider/hardware acceptance; the newer storage/section release has separate gates.
 
-New section/import and encrypted-storage contracts have synthetic test coverage. These source checks do not establish the pending cloud release or recovery of original sections from a real Mac. The owner reports that the phone import worked; that report is not automated real-account or full-sync acceptance.
+The encrypted-cloud release passes 201 Node tests with one optional browser-wrapper skip, six local browser checks in each of two runs, six live UI checks and fifteen actual synthetic live API checks. Its owned test vault was deleted and absence verified. A later actual selected-source preview and 24 synthetic helper checks validate the section-recovery path; the owner reported **“Sections imported correctly”** and **“Saved to Cloud”** on the phone. Those phone results are user-attested, not automated physical readback or full-sync acceptance. See the [release receipt](docs/cloud-release-2026-10-12.md) and [native/owner checkpoint](docs/parity/native-section-preview-2026-10-12.json).
 
 Optional macOS checks:
 
@@ -142,7 +142,7 @@ native/ios/build.sh
 
 This is a small single-owner application, not a multi-tenant service. OS notifications, geofences, full collaboration, offline conflict merging and hosted LLM execution are not implemented. Exact native styling and motion are still in progress.
 
-The native bridge is manual and opt-in. Public EventKit cannot reproduce every private Apple Reminders field or original section metadata. The separately permissioned Mac section helper uses a private local interface and remains unaccepted against real data. Phone import is user-attested; physical-device Keychain, complete field fidelity and completion writeback still need acceptance testing. Use fictional data while evaluating these features.
+The native bridge is manual and opt-in. Public EventKit cannot reproduce every private Apple Reminders field. The separately permissioned Mac helper validates original sections for the reviewed selection; the owner handled its private export/phone import and confirmed cloud save. Those phone confirmations are user-attested. Complete field fidelity, private-interface portability, physical Keychain and completion writeback still need acceptance; development/tests use fictional data.
 
 The repository contains source and synthetic fixtures, not account exports, owner recordings, deployed secrets or private audit history. See [SECURITY.md](SECURITY.md) before exposing an instance publicly.
 

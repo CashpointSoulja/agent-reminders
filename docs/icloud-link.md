@@ -4,6 +4,8 @@ The iPhone companion can read selected Apple Reminders lists and import a review
 
 This is a manual import and refresh. Editing or completing an imported reminder in the password-free browser app does not change the original Apple reminder. Existing self-hosted device pairing and separately approved completion writeback remain separate features.
 
+Later selected-section acceptance: the permissioned Mac helper validates actual original definitions, membership, UUID mapping, order and source rechecks for the reviewed selection. The owner handled a private export/phone import and reported **“Sections imported correctly”**, followed by **“Saved to Cloud.”** These phone confirmations are USER-ATTESTED, without agent physical/export/key/cloud-body readback. [Native sections](native-sections.md) and [latest acceptance](parity/native-section-preview-2026-10-12.json) define that scope; public iPhone EventKit alone still cannot provide original sections or full private field parity.
+
 ## Use the iPhone companion
 
 1. Open [the native Xcode project](../native/ios/AgentReminders.xcodeproj). Choose your own signing team and install it on your own iPhone. The source requires iOS 17 or later. There is no published App Store or TestFlight build.
@@ -69,4 +71,4 @@ Every snapshot must have an exact selected-list set and unique records. Imports 
 
 Cloudflare Pages and Workers can host the web app and its APIs. They cannot run iOS EventKit or obtain the device's Reminders permission. This link therefore requires the native companion on an Apple device; no alternate cloud provider or paid service is introduced. Apple's [EventKit access documentation](https://developer.apple.com/documentation/eventkit/accessing-the-event-store) describes the OS permission boundary.
 
-The local bridge, snapshot bounds and export share code compile for iOS Simulator; 51 synthetic native core checks and 11 existing device-client checks pass. The simulator binary was built without installing or controlling any simulator. Physical-device compilation is checked separately. Actual device permission, a real iCloud selection, system file sharing and an end-to-end browser import remain unverified on signed hardware. No real account data is included in these tests or this repository.
+The earlier bridge/export checkpoint has 51 synthetic core and 11 protocol checks plus simulator/physical source compilation. Later Mac recovery has 24 synthetic helper checks and actual selected preview validation; owner export/phone import and cloud save are separately attested. Independent physical readback, complete fields, Keychain and completion writeback remain unverified. No real account data/export/key is included in tests or this repository.

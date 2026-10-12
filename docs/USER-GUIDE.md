@@ -1,8 +1,10 @@
 # User guide
 
-The public playground starts with fictional reminders in your own browser. It does not connect to a private server. Optional **More → Accounts** imports selected Google Calendar, Google Tasks or companion-reviewed iCloud records into this browser. A self-hosted instance adds persistent storage, private attachments and opt-in agent/device features.
+The public playground starts with fictional reminders and browser-local copies. **More → Accounts** imports selected account records; **More → Cloud Storage** explicitly saves those copies in a separate private encrypted vault. The owner/agent API remains a separately self-hosted service and is disabled on the public playground.
 
-For provider consent, selected-list previews, manual refresh, optional Google Tasks completion and iCloud companion setup, follow [account linking](account-linking.md). Clearing browser storage removes local copies; disconnecting leaves the copies intact. Calendar and iCloud copies do not update their source accounts.
+Current scoped acceptance: the selected Mac preview validates original sections/membership/order and UUID mapping. The owner handled the private export/phone import and reported **“Sections imported correctly”**, then **“Saved to Cloud.”** Those phone results are USER-ATTESTED, not agent physical/export/key/cloud-body readback. See [latest acceptance](parity/native-section-preview-2026-10-12.json).
+
+For provider consent, selected previews/manual refresh and setup, follow [account linking](account-linking.md). Clearing browser storage removes local copies and any remembered cloud code; keep the code privately first. Disconnecting leaves local copies intact. Calendar/iCloud copies and cloud restoration do not update source accounts.
 
 ## Capture and organise
 
@@ -41,6 +43,14 @@ Cancel an assignment or revoke a token to stop new work. This cannot undo an ext
 ## Connect a device
 
 The optional iOS companion can preview selected lists, pair with your self-hosted instance and upload a reviewed snapshot. Completion writeback is a separate setting. Simulator mode is always synthetic; physical-device sync remains unverified. Follow [native sync](NATIVE-SYNC.md) before using real reminders.
+
+The reviewed local section-import path is distinct: [original sections](native-sections.md) explains selected Mac recovery and the owner-attested phone result. Neither that import nor cloud saving enables native completion writeback or continuous two-way sync.
+
+## Private cloud and another device
+
+Use the app/profile that contains your imported copies: **More → Cloud Storage → Remember on This Device → Enable Cloud Storage**, then check **Saved to Cloud**. The current owner has attested completing this on the already-imported iPhone companion. Mac/browser profiles contain separate local data.
+
+Keep the recovery code in a private place. On another device, connect using it, review the cloud preview and deliberately choose **Use Cloud Version** or **Keep This Device Version**. No code, private export or reminder contents belong in chat/Git. See the [cloud user guide](cloud-storage-user-guide.md) for conflict/history recovery; independent real cross-device restoration remains unverified.
 
 ## If saving fails
 

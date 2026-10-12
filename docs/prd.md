@@ -74,6 +74,6 @@ Responsiveness, motion timing and material performance must be measured on the t
 
 ## Roadmap and current gaps
 
-The [roadmap](ROADMAP.md) separates implemented preview, next acceptance and later hosted agents. Current cloud live proof is pending. Phone import is user-attested; Mac original-section recovery awaits permission/private-interface acceptance. Google APIs are enabled, but product client creation is blocked by a blank required CAPTCHA panel, not rejection.
+The [roadmap](ROADMAP.md) separates implemented preview, next acceptance and later hosted agents. The [cloud release](cloud-release-2026-10-12.md) passes synthetic live gates. Later [selected native/owner acceptance](parity/native-section-preview-2026-10-12.json) validates original section definitions, membership, UUID mapping, order and source rechecks; phone import and cloud save are USER-ATTESTED, without agent physical/export/key/cloud-body readback. Google APIs are enabled, but product client creation is blocked by a blank required CAPTCHA panel, not rejection.
 
 Native pixel/motion parity, complete private Apple fields, real Google consent, hardware writeback, delivered alerts, collaboration and production readiness remain incomplete. External-agent support exists as a separate source contract; hosted inference is design-only and later. The [LLM design](LLM-LAYER-DESIGN.md) defines that boundary.

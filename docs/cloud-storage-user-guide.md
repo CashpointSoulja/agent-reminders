@@ -2,6 +2,8 @@
 
 Cloud Storage saves your personal reminders, lists, sections, templates, and safe account import mappings in a private encrypted backup on Cloudflare. Each backup has its own random recovery code. It does not use a shared app password or the public demo’s workspace.
 
+Latest owner checkpoint: after reviewed section recovery/import, the owner enabled storage in the already-imported iPhone companion and reported **“Saved to Cloud.”** This is USER-ATTESTED; no agent inspected the real phone/export/key/cloud body. It supersedes the earlier unactivated checkpoint without rewriting its frozen proof. See [latest acceptance](parity/native-section-preview-2026-10-12.json). Independent restoration on another device remains a separate acceptance gate.
+
 ## Save this device
 
 1. Open **More → Cloud Storage** in the Reminders sidebar or iPhone Home toolbar.

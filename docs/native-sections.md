@@ -18,7 +18,7 @@ Build and run the synthetic checks:
 native/ios/mac-sections/build.sh
 ```
 
-The command creates `work/native-section-export/RemindersSectionExport.app`. It does not launch the helper, read an account, or install anything. The 15 checks exercise only synthetic objects and an owner-only temporary file, which is deleted.
+The command creates `work/native-section-export/RemindersSectionExport.app`. It does not launch the helper, read an account, or install anything. The 24 checks exercise only synthetic objects and an owner-only temporary file, which is deleted.
 
 To use the helper:
 
@@ -55,9 +55,13 @@ The installed macOS Reminders executable was identified through REA `inspect-mac
 
 The helper fails closed if a selector/signature changes, access is denied, IDs are ambiguous, membership points outside the selected list, or native ordering does not cover every reminder. It rechecks sections, ordering, and membership after the public EventKit fetch. No partial export is offered. Native subsections or subtasks that the ordering interface cannot represent cause an explicit failure, rather than an invented layout.
 
-**Live status:** the helper has compiled, its 15 synthetic protocol/file checks pass, and its separate macOS Reminders permission prompt has been observed. It is awaiting the owner’s macOS permission. No real account snapshot has been exported. Entitlement acceptance, matching IDs across the owner’s devices, and returned section order versus the native UI remain unverified. Existing iPhone imports still need a genuine section-aware source to recover missing sections.
+**Live status:** the helper has compiled and its 24 synthetic protocol/file/scope checks pass. The owner granted macOS Reminders permission and selected the same intended lists. The corrected real preview reached `selected-preview-validated-awaiting-owner-export`: native sections, reminder membership/order, public/native UUID mapping and the post-fetch source recheck all passed for that reviewed selection. Synthetic self-tests cannot produce this actual-run marker. The owner then reviewed the section headings/order, saved the private file outside Git, imported it on the phone and confirmed **“Sections imported correctly.”** The owner also enabled the private phone backup and confirmed **“Saved to Cloud.”** These phone/import/backup confirmations are owner-attested; the agent did not read the actual reminder export, recovery key or owner cloud body. The agent did not export data or change Apple reminders. Exact native UI/pixel parity remains open.
 
-The ignored `work/native-section-export/section-export-stage.txt` file records only an authored phase or sanitized error code, with mode `0600`. It never contains reminder text, section names, record IDs, or native exception reasons. It can identify a permission/interface blocker without recording a private chooser screenshot.
+The earlier stale process's `NSCocoaErrorDomain:4097` and the older preview's `-3009` remain historical failures. The shipped `REMError` factory identifies `com.apple.reminderkit:-3009` as a missing user-defined section for a reminder. The correction treats **only** a nil result with that exact domain/code from the **individual membership lookup** as explicitly sectionless. The same code at section-list/order stages, a different domain or an entitlement error still stops export. Synthetic regressions prove these boundaries; the real selected-list preview passed after the correction.
+
+If the native section interface fails on the current process, the helper offers a **masked public EventKit chooser**. The owner reveals names, selects only the same already-imported lists, and uses **Confirm Read-only Selection**. This writes only approved list IDs and a timestamp to an ignored, owner-only `section-recovery-scope.json`; it is not a reminder export and contains no guessed sections. It prepares a narrowly scoped native audit. It does not establish section recovery, and reminder export remains unavailable through that fallback.
+
+The ignored `work/native-section-export/section-export-stage.txt` file records only authored operation phases or sanitized domain/code, with mode `0600`. Synthetic self-tests cannot write that actual-run status. It never contains reminder text, section names, record IDs, or native exception reasons. A real preview saves approved public list IDs privately **before** native reads, so a failure does not lose the selection. Subsequent starts restore only that validated, owner-only scope within 24 hours; absent/unknown IDs are not defaulted to all lists. The old failed-preview version had not persisted that approval, so its selection could not be recovered safely; no checkbox positions or title guesses were replayed. The owner selected the intended lists again on the fixed helper, whose actual preview validated and persisted that scope.
 
 ## Snapshot and refresh contract
 

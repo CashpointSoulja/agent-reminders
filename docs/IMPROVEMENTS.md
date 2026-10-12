@@ -4,12 +4,12 @@ Native one-to-one fidelity remains required. A visible difference from the chose
 
 | Priority | Work | Benefit | Current status/exit gate |
 | --- | --- | --- | --- |
-| P0 | Preserve original sections and identities | Keep imported organisation intact instead of flattening lists | Contract tests exist; genuine Mac permission/private-interface recovery still required |
-| P0 | Private cross-device storage | Retain reviewed local copies without a shared plaintext workspace | Encrypted cloud source implemented; live Pages/UI/isolation/persistence proof pending |
+| P0 | Preserve original sections and identities | Keep imported organisation intact instead of flattening lists | Selected native preview validates definitions/membership/UUID/order; owner phone import confirmed. Broader compatibility/full parity remain open |
+| P0 | Private cross-device storage | Retain reviewed local copies without a shared plaintext workspace | Synthetic live gates pass; phone save is USER-ATTESTED. Independent cross-device restoration remains open |
 | P0 | Honest save/conflict/recovery | Prevent silent lost edits or uncertain setup duplication | Revision/draft safeguards and synthetic tests exist; live failure/reconnect proof required |
 | P0 | Exact phone sheets and motion | Preserve the intended native capture/organisation experience | All remaining copy/layout/picker/glass/drag differences stay open defects |
 | P0 | Explicit authority and data boundaries | Prevent account imports or note text granting unrelated access | Separate owner, agent, device and cloud capabilities; live deployment separation must be verified |
-| P1 | Actual account consent and source acceptance | Make configured import flows usable on real devices | Google client setup blocker and Mac permission/interface gates remain open |
+| P1 | Actual account consent and source acceptance | Make configured import flows usable on real devices | Selected Mac recovery/phone confirmation pass their named scopes; Google client and wider provider/hardware acceptance remain open |
 | P1 | Photo/file durability | Keep the material needed to perform a task private and recoverable | R2 source lifecycle exists; cloud binary backup and native capture parity remain gaps |
 | P1 | Accessible parity on every layout | Let keyboard, touch and assistive users perform the same core work | Basic checks are a baseline; full native/device/screen-reader acceptance needed |
 | P1 | Complete product/API/agent documentation | Make source capabilities and limits understandable without private history | Public PRD, inventory, architecture, APIs and later-layer design documented; keep evidence current |
