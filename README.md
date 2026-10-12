@@ -44,7 +44,7 @@ Agent and device features are separate opt-ins. The public playground does not p
 Requirements: Node.js 22.19 or later and npm. Native builds additionally require macOS and Xcode.
 
 ```sh
-git clone https://github.com/CashpointSoulja/agent-reminders.git
+git clone --branch rea-reminders-build https://github.com/CashpointSoulja/agent-reminders.git
 cd agent-reminders
 npm ci
 npm start
@@ -114,6 +114,8 @@ For a static-only playground artifact, run `npm run build:demo` followed by `nod
 The unit/integration suite includes real SQLite transaction tests with a D1 adapter and fake R2. Browser and iPhone simulator checks cover selected flows using fictional data; they do not establish whole-screen pixel equality or physical-device sync.
 
 The original public release passed 153 automated tests and browser checks for save/reload persistence, independent-browser isolation, completion/reopening, subtasks, templates and shopping categories. Account adapter/import tests additionally use synthetic provider responses to check permissions, paging, dates, conflict preservation, missing data, selected-task completion and reconnection races. These checks do not prove real OAuth consent or physical Apple sync.
+
+The account-linking branch passes 173 tests and live browser checks. See [verification scope](docs/account-verification.md) for the precise runs, deployment and remaining provider/hardware acceptance.
 
 Optional macOS checks:
 

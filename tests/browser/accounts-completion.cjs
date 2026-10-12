@@ -11,6 +11,7 @@ async function run() {
   const blocked = [];
   try {
     await context.addInitScript(() => {
+      if (location.origin === 'null') return;
       localStorage.setItem('reminders-google-client-id', '123456789012-abcdefghijklmnop.apps.googleusercontent.com');
       window.__testScopes = [];
       window.google = { accounts: { oauth2: {

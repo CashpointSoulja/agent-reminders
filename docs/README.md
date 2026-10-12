@@ -10,6 +10,7 @@
 | [Agent API](AGENT-API.md) | Connect an external runtime, claim work and report evidence |
 | [Native sync](NATIVE-SYNC.md) | iOS companion, explicit consent, imports and writeback limits |
 | [Account linking](account-linking.md) | Browser-local iCloud, Google Calendar and Google Tasks connections |
+| [Accounts verification](account-verification.md) | Source, synthetic/browser checks, static deployment and open acceptance |
 | [Google setup](google-accounts.md) | Public OAuth client, scopes and provider limits |
 | [iCloud linking](icloud-link.md) | Device consent, local import and reviewed browser export |
 | [Roadmap](ROADMAP.md) | Current implementation and remaining acceptance work |
