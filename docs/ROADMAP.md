@@ -11,6 +11,7 @@ This roadmap distinguishes implemented source from acceptance work. It is not a 
 - A plain Node reference client for a runtime you configure.
 - An opt-in iOS companion and selected-list transport, with synthetic core/client tests.
 - A browser-local fictional playground that does not share a private workspace.
+- Selected Google Calendar/Tasks imports, conflict-preserving refreshes, opt-in Tasks completion and reviewed iCloud local/file imports. Deployment still needs its own Google OAuth web client; signed-device and real-account acceptance are separate checks.
 
 ## Next acceptance work
 

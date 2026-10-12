@@ -27,6 +27,8 @@ A success receipt records an agent's verification attestation. The server checks
 
 Native EventKit operations are not atomic with D1. Physical-device sync, public-API field limits and cross-system reconciliation remain acceptance risks; see [native sync](docs/NATIVE-SYNC.md).
 
+The browser-local Accounts sheet is separate from server mode. Google tokens are memory-only and provider data is fetched directly after consent. Local imports and source metadata remain in this browser profile; another person with access to the profile can read them. Google Tasks completion needs a separate grant and current provider version. iCloud local imports and exports do not modify Apple Reminders. Keep real exported JSON out of Git and delete saved exports when no longer needed.
+
 ## Known dependency advisories
 
 At the initial public preview, `npm audit` reports inherited Expo/React Native toolchain advisories involving `braces`, `node-forge` and `xcode`'s `uuid` dependency. The registry currently proposes incompatible framework downgrades rather than a supported in-place repair. This is not a clean dependency-audit release.

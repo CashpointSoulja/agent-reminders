@@ -31,6 +31,8 @@ import TemplateDialog from "./src/TemplateDialog";
 import { AgentAssignment } from "./src/AgentSettings.jsx";
 import { saveTemplate, useTemplate } from "./src/templates";
 import NativeListSheet from "./src/NativeListSheet";
+import AccountsSheet from "./src/AccountsSheet.jsx";
+import useAccounts from "./src/useAccounts.js";
 import "./src/native-details.css";
 import "./src/native-parity.css";
 const KEY = "reminders-web-v1",
@@ -148,6 +150,7 @@ export default function App({
   function setData(update) {
     setRawData(previous => categoriseShopping(typeof update === "function" ? update(previous) : update, previous));
   }
+  const accounts = useAccounts({ enabled: !api && !onDataChange, data, setData, onNotice: setNotice });
   useEffect(() => {
     if (incomingData) setRawData(incomingData);
   }, [incomingData]);
@@ -180,7 +183,8 @@ export default function App({
       ),
     }));
   }
-  function complete(r) {
+  async function complete(r) {
+    if (accounts.enabled && await accounts.completeReminder(r)) return;
     setData((d) =>
       r.completed ? reopenReminder(d, r.id) : completeReminder(d, r.id),
     );
@@ -283,6 +287,10 @@ export default function App({
   useEffect(() => {
     function key(e) {
       if (modal === "agent-assign") return;
+      if (modal === "accounts") {
+        if (e.key === "Escape") { e.preventDefault(); setModal(null); }
+        return;
+      }
       if (e.key === "Escape") {
         if (["detail", "quick-entry", "templates", "save-template"].includes(modal)) return;
         setModal(null);
@@ -344,10 +352,11 @@ export default function App({
     return () => document.removeEventListener("keydown", key);
   });
   useEffect(() => {
-    if (!modal) return;
+    if (!modal || modal === "accounts") return;
     const previous = document.activeElement;
     const frame = requestAnimationFrame(() => {
       const dialog = document.querySelector("[role=dialog]");
+      if (!dialog) return;
       const first = dialog?.querySelector(
         'input:not([disabled]),textarea,select,button,[tabindex="0"]',
       );
@@ -412,7 +421,7 @@ export default function App({
       ) : (
         <View dataSet={{ ui: "sidebar-heading" }}>
           <Text dataSet={{ ui: "app-name" }}>Reminders</Text>
-          {button("Templates", "more", () => setModal("templates"))}
+          {button("More", "more", () => setModal("home-menu"))}
           <Text dataSet={{ ui: "local-label" }}>On this device</Text>
         </View>
       )}
@@ -1145,12 +1154,12 @@ export default function App({
           }}
         >
           <div
-            className={`modal ${modal === "detail" ? "detail-modal" : ""} ${modal === "quick-entry" ? "native-quick-entry-modal" : ""} ${modal === "agent-assign" || modal === "list" || (typeof modal === "object" && modal.type === "list") ? "native-list-modal" : ""} ${["save-template", "templates"].includes(modal) ? "native-template-modal" : ""} ${phone && ["home-menu", "list-menu", "sort-menu"].includes(modal) ? "native-list-menu" : ""}`}
+            className={`modal ${modal === "accounts" ? "native-accounts-modal" : ""} ${modal === "detail" ? "detail-modal" : ""} ${modal === "quick-entry" ? "native-quick-entry-modal" : ""} ${modal === "agent-assign" || modal === "list" || (typeof modal === "object" && modal.type === "list") ? "native-list-modal" : ""} ${["save-template", "templates"].includes(modal) ? "native-template-modal" : ""} ${phone && ["home-menu", "list-menu", "sort-menu"].includes(modal) ? "native-list-menu" : ""}`}
             role={
-              ["detail", "quick-entry", "list", "save-template", "templates"].includes(modal) || (typeof modal === "object" && modal.type === "list") ? undefined : "dialog"
+              ["accounts", "detail", "quick-entry", "list", "save-template", "templates"].includes(modal) || (typeof modal === "object" && modal.type === "list") ? undefined : "dialog"
             }
             aria-modal={
-              ["detail", "quick-entry", "list", "save-template", "templates"].includes(modal) || (typeof modal === "object" && modal.type === "list") ? undefined : "true"
+              ["accounts", "detail", "quick-entry", "list", "save-template", "templates"].includes(modal) || (typeof modal === "object" && modal.type === "list") ? undefined : "true"
             }
             aria-label={
               modal === "detail"
@@ -1160,7 +1169,9 @@ export default function App({
                   : `${modal} dialog`
             }
           >
-            {modal === "detail" ? (
+            {modal === "accounts" && accounts.enabled ? (
+              <AccountsSheet accounts={accounts} onClose={() => setModal(null)} />
+            ) : modal === "detail" ? (
               detail
             ) : modal === "quick-entry" ? (
               <NativeQuickEntry
@@ -1312,6 +1323,7 @@ export default function App({
                 <button role="menuitem" onClick={() => setModal("templates")}>
                   Templates
                 </button>
+                {accounts.enabled && <button role="menuitem" onClick={() => { accounts.clearMessages(); setModal("accounts"); }}>Accounts</button>}
               </div>
             ) : modal === "list-menu" ? (
               <div role="menu" aria-label="List actions">

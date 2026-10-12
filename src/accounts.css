@@ -1,0 +1,830 @@
+/* Accounts sheet: Settings-style account rows in the shared Reminders glass materials.
+   The host wraps it in .modal.native-accounts-modal and sets --accounts-vh / --accounts-vtop
+   from visualViewport, like NativeListSheet. */
+
+.modal-backdrop > .modal.native-accounts-modal {
+  display: flex;
+  flex-direction: column;
+  width: min(100%, 440px);
+  max-width: 100%;
+  height: min(620px, calc(var(--accounts-vh, 100dvh) - 48px));
+  max-height: none;
+  padding: 0;
+  overflow: hidden;
+  border: 0;
+  border-radius: 34px;
+  background: transparent;
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+  box-shadow:
+    0 24px 80px rgb(0 0 0 / 22%),
+    0 2px 10px rgb(0 0 0 / 8%);
+  animation: accounts-pop 280ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+.accounts-sheet {
+  --accounts-sheet: rgb(242 242 247 / 90%);
+  --accounts-sheet-solid: #f2f2f7;
+  --accounts-header-fill: rgb(242 242 247 / 78%);
+  --accounts-group: rgb(255 255 255 / 94%);
+  --accounts-group-solid: #fff;
+  --accounts-chrome: rgb(255 255 255 / 75%);
+  --accounts-chrome-solid: #fff;
+  --accounts-pressed: rgb(209 209 214 / 92%);
+  --accounts-hover: rgb(0 0 0 / 3%);
+  --accounts-label: #000;
+  --accounts-muted: #6c6c70;
+  --accounts-tertiary: #aeaeb2;
+  --accounts-separator: rgb(60 60 67 / 29%);
+  --accounts-field-edge: #8a8a8e;
+  --accounts-blue: #007aff;
+  --accounts-blue-fill: #0071e3;
+  --accounts-blue-text: #0068d6;
+  --accounts-red-text: #c8001a;
+  --accounts-focus: #0068d6;
+  --accounts-focus-halo: rgb(0 104 214 / 18%);
+  --accounts-edge: rgb(255 255 255 / 80%);
+  --accounts-tint: rgb(0 113 227 / 8%);
+  --accounts-error-tint: rgb(200 0 26 / 7%);
+  --accounts-done-disabled: #c7c7cc;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  min-height: 0;
+  height: 100%;
+  border-radius: inherit;
+  color: var(--accounts-label);
+  background-color: var(--accounts-sheet);
+  background-image: var(--liquid-highlight, none);
+  -webkit-backdrop-filter: blur(24px) saturate(160%);
+  backdrop-filter: blur(24px) saturate(160%);
+  box-shadow:
+    inset 0 0.5px 0 var(--accounts-edge),
+    inset 0 0 0 0.5px rgb(255 255 255 / 12%);
+  font: 400 17px/22px -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+  color-scheme: light dark;
+}
+.accounts-sheet,
+.accounts-sheet *,
+.accounts-sheet *::before,
+.accounts-sheet *::after {
+  box-sizing: border-box;
+}
+.accounts-sheet :where(button, label, input) {
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+.accounts-sheet :where(button) {
+  cursor: pointer;
+}
+
+/* Floating chrome blurs rows scrolling underneath, fading out at its lower edge. */
+.accounts-sheet .accounts-header {
+  position: absolute;
+  z-index: 2;
+  top: 0;
+  left: 0;
+  right: 0;
+  display: grid;
+  grid-template-columns: 44px minmax(0, 1fr) 44px;
+  align-items: center;
+  column-gap: 12px;
+  height: 64px;
+  padding: 0 16px;
+}
+.accounts-sheet .accounts-header::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  inset: 0 0 -14px;
+  background: var(--accounts-header-fill);
+  -webkit-backdrop-filter: blur(20px) saturate(160%);
+  backdrop-filter: blur(20px) saturate(160%);
+  -webkit-mask-image: linear-gradient(to bottom, #000 calc(100% - 22px), transparent);
+  mask-image: linear-gradient(to bottom, #000 calc(100% - 22px), transparent);
+  pointer-events: none;
+}
+.accounts-sheet .accounts-header h2 {
+  grid-column: 2;
+  margin: 0;
+  overflow: hidden;
+  font-size: 17px;
+  line-height: 22px;
+  font-weight: 650;
+  letter-spacing: normal;
+  text-align: center;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.accounts-sheet .accounts-chrome {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  min-height: 44px;
+  padding: 0;
+  border: 0.5px solid rgb(150 150 155 / 15%);
+  border-radius: 50%;
+  color: var(--accounts-label);
+  background-color: var(--accounts-chrome);
+  background-image: var(--liquid-highlight, none);
+  background-clip: padding-box;
+  box-shadow: var(--liquid-shadow, 0 6px 20px rgb(0 0 0 / 9%));
+  -webkit-backdrop-filter: blur(20px) saturate(160%);
+  backdrop-filter: blur(20px) saturate(160%);
+  transition:
+    transform 180ms cubic-bezier(0.2, 0.8, 0.2, 1),
+    box-shadow 180ms ease,
+    background-color 180ms ease;
+}
+.accounts-sheet .accounts-header > .accounts-chrome:first-child {
+  grid-column: 1;
+}
+.accounts-sheet .accounts-header > .accounts-chrome:last-child {
+  grid-column: 3;
+  color: #fff;
+  background-color: var(--accounts-blue);
+  background-image: linear-gradient(165deg, rgb(255 255 255 / 15%), transparent 40%, rgb(255 255 255 / 3%));
+  border-color: rgb(255 255 255 / 40%);
+}
+.accounts-sheet .accounts-header > .accounts-chrome:last-child:disabled {
+  color: #fff;
+  background-color: var(--accounts-done-disabled);
+  background-image: none;
+  border-color: transparent;
+  box-shadow: none;
+  cursor: default;
+}
+.accounts-sheet .accounts-chrome > span {
+  font-size: 36px;
+  font-weight: 250;
+  line-height: 1;
+  margin-top: -4px;
+}
+.accounts-sheet .accounts-chrome svg {
+  width: 24px;
+  height: 24px;
+  flex: none;
+}
+.accounts-sheet .accounts-header > .accounts-chrome:last-child svg {
+  width: 26px;
+  height: 26px;
+}
+.accounts-sheet .accounts-chrome:active:not(:disabled) {
+  transform: scale(0.92);
+  box-shadow:
+    inset 0 1px 4px var(--liquid-shade, rgb(0 0 0 / 9%)),
+    inset 0 1px 0 var(--liquid-edge, rgb(255 255 255 / 80%));
+}
+
+.accounts-sheet .accounts-body {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+  padding: 72px 20px max(28px, calc(16px + env(safe-area-inset-bottom)));
+  scroll-padding: 72px 0 24px;
+}
+.accounts-sheet .accounts-body > * {
+  margin: 0;
+}
+.accounts-sheet .accounts-body > * + * {
+  margin-top: 28px;
+}
+.accounts-sheet .accounts-body > .accounts-group + .accounts-caption {
+  margin-top: 8px;
+}
+.accounts-sheet .accounts-body > * + :is(.accounts-status, .accounts-error) {
+  margin-top: 12px;
+}
+
+.accounts-sheet .accounts-group {
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+.accounts-sheet .accounts-group-title {
+  margin: 0 0 8px;
+  padding: 0 16px;
+  color: var(--accounts-muted);
+  font-size: 13px;
+  line-height: 18px;
+  font-weight: 400;
+  letter-spacing: 0.01em;
+  text-transform: uppercase;
+}
+.accounts-sheet .accounts-group > :is(.account-row, .account-source) + :not(.account-row, .account-source) {
+  margin-top: 8px;
+}
+
+/* Rows and checkbox rows form one rounded group; corners come from position. */
+.accounts-sheet :is(.account-row, .account-source) {
+  position: relative;
+  display: grid;
+  align-items: center;
+  width: 100%;
+  min-width: 0;
+  margin: 0;
+  border: 0;
+  border-radius: 0;
+  color: var(--accounts-label);
+  background-color: var(--accounts-group);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: background-color 220ms ease;
+}
+.accounts-sheet :is(.account-row, .account-source):not(:is(.account-row, .account-source) + *) {
+  border-top-left-radius: 26px;
+  border-top-right-radius: 26px;
+}
+.accounts-sheet :is(.account-row, .account-source):not(:has(+ :is(.account-row, .account-source))) {
+  border-bottom-left-radius: 26px;
+  border-bottom-right-radius: 26px;
+}
+.accounts-sheet :is(.account-row, .account-source) + :is(.account-row, .account-source)::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  right: 0;
+  left: 58px;
+  height: 0.5px;
+  background: var(--accounts-separator);
+  pointer-events: none;
+}
+.accounts-sheet .account-source + .account-source::before {
+  left: 54px;
+}
+.accounts-sheet .account-row {
+  grid-template-columns: 30px minmax(0, 1fr) auto;
+  column-gap: 12px;
+  min-height: 56px;
+  padding: 9px 16px;
+}
+.accounts-sheet .account-source {
+  grid-template-columns: 24px minmax(0, 1fr);
+  column-gap: 14px;
+  min-height: 52px;
+  padding: 10px 16px;
+}
+@media (hover: hover) and (pointer: fine) {
+  .accounts-sheet :is(.account-row, .account-source):hover {
+    background-image: linear-gradient(var(--accounts-hover), var(--accounts-hover));
+  }
+  .accounts-sheet .accounts-action:hover:not(:disabled) {
+    filter: brightness(1.04);
+  }
+}
+.accounts-sheet :is(.account-row, .account-source):active {
+  background-color: var(--accounts-pressed);
+  background-image: none;
+  transition-duration: 0s;
+}
+.accounts-sheet .account-row:disabled,
+.accounts-sheet .account-source:has(input:disabled) {
+  cursor: default;
+}
+.accounts-sheet .account-row:disabled > *,
+.accounts-sheet .account-source:has(input:disabled) > * {
+  opacity: 0.45;
+}
+
+.accounts-sheet .account-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  flex: none;
+  border-radius: 8px;
+  color: #fff;
+  background: linear-gradient(180deg, #8e8e93, #636366);
+  box-shadow:
+    inset 0 0.5px 0 rgb(255 255 255 / 35%),
+    inset 0 0 0 0.5px rgb(0 0 0 / 6%);
+}
+.accounts-sheet .account-icon.icloud {
+  background: linear-gradient(180deg, #64d2ff, #0a84ff);
+}
+.accounts-sheet .account-icon.calendar {
+  background: linear-gradient(180deg, #ff6961, #ff3b30);
+}
+.accounts-sheet .account-icon.tasks {
+  background: linear-gradient(180deg, #7d7aff, #5856d6);
+}
+.accounts-sheet .account-icon svg {
+  width: 19px;
+  height: 19px;
+}
+
+.accounts-sheet .account-copy {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 1px;
+  min-width: 0;
+}
+.accounts-sheet .account-copy > strong {
+  font-size: 17px;
+  line-height: 22px;
+  font-weight: 400;
+  overflow-wrap: anywhere;
+}
+.accounts-sheet .account-copy > :not(strong) {
+  margin: 0;
+  color: var(--accounts-muted);
+  font-size: 15px;
+  line-height: 20px;
+  overflow-wrap: anywhere;
+}
+.accounts-sheet .account-chevron {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 12px;
+  height: 20px;
+  margin-right: -2px;
+  flex: none;
+  color: var(--accounts-tertiary);
+}
+.accounts-sheet .account-chevron svg {
+  width: 8px;
+  height: 14px;
+}
+.accounts-sheet .account-chevron:empty::before {
+  content: "";
+  width: 8px;
+  height: 8px;
+  border-top: 2px solid currentColor;
+  border-right: 2px solid currentColor;
+  border-radius: 1px;
+  transform: translateX(-2px) rotate(45deg);
+}
+
+.accounts-sheet .account-source input[type="checkbox"] {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 24px;
+  height: 24px;
+  min-height: 24px;
+  margin: 0;
+  border: 1.5px solid var(--accounts-field-edge);
+  border-radius: 50%;
+  background: transparent center / 14px 14px no-repeat;
+  cursor: pointer;
+  transition:
+    background-color 160ms ease,
+    border-color 160ms ease;
+}
+.accounts-sheet .account-source input[type="checkbox"]:checked {
+  border-color: var(--accounts-blue-fill);
+  background-color: var(--accounts-blue-fill);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 14 14'%3E%3Cpath d='M3 7.4 5.8 10 11 4' fill='none' stroke='%23fff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+}
+
+/* Detail view: same body, one column, iOS push-style entry. */
+.accounts-sheet .account-panel {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  animation: accounts-panel-in 300ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+.accounts-sheet .account-panel > * {
+  margin: 0;
+}
+.accounts-sheet .account-panel > * + * {
+  margin-top: 16px;
+}
+.accounts-sheet .account-panel > .account-back + * {
+  margin-top: 8px;
+}
+.accounts-sheet .account-panel > :is(.accounts-group, .accounts-input, .accounts-preview) + .accounts-caption {
+  margin-top: 8px;
+}
+.accounts-sheet .account-panel > :not(.accounts-action) + .accounts-action {
+  margin-top: 24px;
+}
+.accounts-sheet .account-panel > .accounts-action + .accounts-action {
+  margin-top: 10px;
+}
+.accounts-sheet .account-panel > * + :is(.accounts-status, .accounts-error) {
+  margin-top: 12px;
+}
+.accounts-sheet .account-panel > h3 {
+  padding: 0 4px;
+  font-size: 20px;
+  line-height: 25px;
+  font-weight: 650;
+}
+.accounts-sheet .account-back {
+  display: inline-flex;
+  align-self: flex-start;
+  align-items: center;
+  gap: 6px;
+  min-height: 44px;
+  margin-inline-start: -8px;
+  padding: 0 12px 0 10px;
+  border: 0;
+  border-radius: 22px;
+  color: var(--accounts-blue-text);
+  background: transparent;
+  font: inherit;
+  font-size: 17px;
+  line-height: 22px;
+}
+.accounts-sheet .account-back:not(:has(svg))::before {
+  content: "";
+  width: 10px;
+  height: 10px;
+  border-left: 2.5px solid currentColor;
+  border-bottom: 2.5px solid currentColor;
+  border-radius: 1px;
+  transform: translateX(2px) rotate(45deg);
+}
+.accounts-sheet .account-back:active {
+  opacity: 0.55;
+}
+
+.accounts-sheet .accounts-caption {
+  margin: 0;
+  padding: 0 16px;
+  color: var(--accounts-muted);
+  font-size: 13px;
+  line-height: 18px;
+}
+.accounts-sheet .accounts-caption a,
+.accounts-sheet .accounts-note a {
+  color: var(--accounts-blue-text);
+}
+
+.accounts-sheet .accounts-input {
+  display: block;
+  width: 100%;
+  min-width: 0;
+  min-height: 50px;
+  margin: 0;
+  padding: 0 16px;
+  border: 1px solid var(--accounts-field-edge);
+  border-radius: 14px;
+  color: var(--accounts-label);
+  background: var(--accounts-group-solid);
+  font: inherit;
+  font-size: 17px;
+  line-height: 22px;
+  text-overflow: ellipsis;
+  caret-color: var(--accounts-blue);
+  -webkit-appearance: none;
+  appearance: none;
+  outline: 2px solid transparent;
+  outline-offset: 1px;
+  transition:
+    border-color 160ms ease,
+    box-shadow 160ms ease;
+}
+.accounts-sheet .accounts-input::placeholder {
+  color: var(--accounts-muted);
+  opacity: 1;
+}
+.accounts-sheet .accounts-input:focus {
+  border-color: var(--accounts-focus);
+  box-shadow:
+    0 0 0 1px var(--accounts-focus),
+    0 0 0 4px var(--accounts-focus-halo);
+}
+.accounts-sheet .accounts-input[aria-invalid="true"] {
+  border-color: var(--accounts-red-text);
+}
+.accounts-sheet .accounts-input:disabled {
+  opacity: 0.5;
+}
+
+.accounts-sheet .accounts-preview {
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  border-radius: 20px;
+  background: var(--accounts-group);
+  list-style: none;
+}
+.accounts-sheet .accounts-preview > li {
+  position: relative;
+  min-height: 44px;
+  padding: 12px 16px;
+  overflow: hidden;
+  font-size: 15px;
+  line-height: 20px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.accounts-sheet .accounts-preview > li + li::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  right: 0;
+  left: 16px;
+  height: 0.5px;
+  background: var(--accounts-separator);
+}
+
+.accounts-sheet .accounts-note {
+  margin: 0;
+  padding: 12px 16px;
+  border-radius: 18px;
+  color: var(--accounts-label);
+  background: var(--accounts-tint);
+  font-size: 15px;
+  line-height: 20px;
+}
+.accounts-sheet .accounts-status {
+  margin: 0;
+  padding: 0 16px;
+  color: var(--accounts-muted);
+  font-size: 13px;
+  line-height: 18px;
+}
+.accounts-sheet .accounts-error {
+  margin: 0;
+  padding: 10px 16px;
+  border-radius: 14px;
+  color: var(--accounts-red-text);
+  background: var(--accounts-error-tint);
+  font-size: 15px;
+  line-height: 20px;
+}
+/* Live regions stay mounted for reliable announcements but take no space when empty. */
+.accounts-sheet :is(.accounts-status, .accounts-error):empty {
+  margin: 0;
+  padding: 0;
+  background: none;
+}
+
+.accounts-sheet .accounts-action {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  min-height: 50px;
+  margin: 0;
+  padding: 13px 20px;
+  border: 0.5px solid rgb(255 255 255 / 40%);
+  border-radius: 25px;
+  color: #fff;
+  background-color: var(--accounts-blue-fill);
+  background-image: linear-gradient(165deg, rgb(255 255 255 / 16%), transparent 42%, rgb(255 255 255 / 4%));
+  background-clip: padding-box;
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 28%),
+    0 6px 18px rgb(0 113 227 / 22%);
+  font: inherit;
+  font-size: 17px;
+  line-height: 22px;
+  font-weight: 600;
+  text-align: center;
+  transition:
+    transform 180ms cubic-bezier(0.2, 0.8, 0.2, 1),
+    filter 180ms ease,
+    opacity 180ms ease;
+}
+.accounts-sheet .accounts-action:is(.secondary, .destructive) {
+  color: var(--accounts-blue-text);
+  background-color: var(--accounts-group);
+  background-image: var(--liquid-highlight, none);
+  border-color: rgb(150 150 155 / 18%);
+  box-shadow:
+    inset 0 1px 0 var(--accounts-edge),
+    0 4px 14px rgb(0 0 0 / 6%);
+}
+.accounts-sheet .accounts-action.destructive {
+  color: var(--accounts-red-text);
+}
+.accounts-sheet .accounts-action:active:not(:disabled) {
+  transform: scale(0.98);
+  filter: brightness(0.94);
+}
+.accounts-sheet .accounts-action:disabled {
+  opacity: 0.4;
+  box-shadow: none;
+  cursor: default;
+}
+
+.accounts-sheet :is(button, a[href], input[type="checkbox"]):focus-visible {
+  outline: 3px solid var(--accounts-focus);
+  outline-offset: 2px;
+}
+.accounts-sheet .account-row:focus-visible {
+  outline-offset: -3px;
+}
+
+@keyframes accounts-pop {
+  from {
+    opacity: 0;
+    transform: translateY(10px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes accounts-rise {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: none;
+  }
+}
+@keyframes accounts-panel-in {
+  from {
+    opacity: 0;
+    transform: translateX(24px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes accounts-fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@media (prefers-color-scheme: dark) {
+  .modal-backdrop > .modal.native-accounts-modal {
+    box-shadow:
+      0 24px 80px rgb(0 0 0 / 50%),
+      0 0 0 0.5px rgb(255 255 255 / 10%);
+  }
+  .accounts-sheet {
+    --accounts-sheet: rgb(28 28 30 / 88%);
+    --accounts-sheet-solid: #1c1c1e;
+    --accounts-header-fill: rgb(28 28 30 / 72%);
+    --accounts-group: rgb(44 44 46 / 90%);
+    --accounts-group-solid: #2c2c2e;
+    --accounts-chrome: rgb(118 118 128 / 24%);
+    --accounts-chrome-solid: #3a3a3c;
+    --accounts-pressed: rgb(58 58 60 / 96%);
+    --accounts-hover: rgb(255 255 255 / 4%);
+    --accounts-label: #fff;
+    --accounts-muted: #98989f;
+    --accounts-tertiary: #636366;
+    --accounts-separator: rgb(84 84 88 / 65%);
+    --accounts-field-edge: #8e8e93;
+    --accounts-blue: #0a84ff;
+    --accounts-blue-text: #409cff;
+    --accounts-red-text: #ff6961;
+    --accounts-focus: #409cff;
+    --accounts-focus-halo: rgb(64 156 255 / 25%);
+    --accounts-edge: rgb(255 255 255 / 18%);
+    --accounts-tint: rgb(64 156 255 / 14%);
+    --accounts-error-tint: rgb(255 105 97 / 14%);
+    --accounts-done-disabled: #48484a;
+  }
+  .accounts-sheet .accounts-action {
+    box-shadow:
+      inset 0 1px 0 rgb(255 255 255 / 22%),
+      0 6px 18px rgb(0 0 0 / 30%);
+  }
+}
+
+@media (max-width: 700px) {
+  .modal-backdrop:has(> .native-accounts-modal) {
+    align-items: flex-end;
+    padding: 0;
+  }
+  .modal-backdrop > .modal.native-accounts-modal {
+    --accounts-top: max(62.6666667px, calc(env(safe-area-inset-top) + 10px));
+    position: fixed;
+    top: calc(var(--accounts-vtop, 0px) + var(--accounts-top));
+    right: 0;
+    bottom: auto;
+    left: 0;
+    width: 100%;
+    max-width: none;
+    height: calc(var(--accounts-vh, 100dvh) - var(--accounts-top));
+    border-radius: 38px 38px 0 0;
+    box-shadow: 0 -8px 40px rgb(0 0 0 / 14%);
+    animation-name: accounts-rise;
+    animation-duration: 460ms;
+    animation-timing-function: cubic-bezier(0.32, 0.72, 0, 1);
+  }
+}
+
+/* Reduced transparency, higher contrast, or no blur support: solid materials, same geometry. */
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .accounts-sheet {
+    --accounts-sheet: var(--accounts-sheet-solid);
+    --accounts-header-fill: var(--accounts-sheet-solid);
+    --accounts-chrome: var(--accounts-chrome-solid);
+  }
+}
+@media (prefers-reduced-transparency: reduce), (prefers-contrast: more) {
+  .accounts-sheet {
+    --accounts-sheet: var(--accounts-sheet-solid);
+    --accounts-header-fill: var(--accounts-sheet-solid);
+    --accounts-group: var(--accounts-group-solid);
+    --accounts-chrome: var(--accounts-chrome-solid);
+    background-image: none;
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+  .accounts-sheet .accounts-header::before {
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+    -webkit-mask-image: none;
+    mask-image: none;
+    inset: 0;
+  }
+  .accounts-sheet .accounts-chrome,
+  .accounts-sheet .accounts-action {
+    background-image: none;
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+}
+@media (prefers-contrast: more) {
+  .accounts-sheet {
+    --accounts-separator: #8a8a8e;
+    --accounts-muted: #4a4a4e;
+    --accounts-tertiary: #6c6c70;
+  }
+  .accounts-sheet .accounts-header > .accounts-chrome:first-child,
+  .accounts-sheet .accounts-action:is(.secondary, .destructive) {
+    border: 1px solid currentColor;
+  }
+}
+@media (prefers-contrast: more) and (prefers-color-scheme: dark) {
+  .accounts-sheet {
+    --accounts-separator: #8e8e93;
+    --accounts-muted: #c7c7cc;
+    --accounts-tertiary: #98989f;
+  }
+}
+@media (forced-colors: active) {
+  .accounts-sheet .accounts-chrome,
+  .accounts-sheet .accounts-action,
+  .accounts-sheet .accounts-input {
+    border: 1px solid ButtonText;
+  }
+  .accounts-sheet .account-source input[type="checkbox"] {
+    -webkit-appearance: auto;
+    appearance: auto;
+    width: 20px;
+    height: 20px;
+    border: 0;
+    background: none;
+  }
+  .accounts-sheet :is(.account-row, .account-source) + :is(.account-row, .account-source)::before,
+  .accounts-sheet .accounts-preview > li + li::before {
+    background: GrayText;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .modal-backdrop > .modal.native-accounts-modal {
+    animation: accounts-fade 160ms ease-out both;
+  }
+  .accounts-sheet .account-panel {
+    animation: accounts-fade 120ms ease-out both;
+  }
+  .accounts-sheet .accounts-chrome,
+  .accounts-sheet .accounts-action,
+  .accounts-sheet :is(.account-row, .account-source),
+  .accounts-sheet .account-source input[type="checkbox"],
+  .accounts-sheet .accounts-input {
+    transition: none;
+  }
+  .accounts-sheet .accounts-chrome:active:not(:disabled),
+  .accounts-sheet .accounts-action:active:not(:disabled) {
+    transform: none;
+  }
+}
+
+.accounts-sheet .accounts-provider-heading { display:flex; align-items:center; gap:12px; padding:0 4px; }
+.accounts-sheet .accounts-provider-heading h3 { margin:0; font-size:20px; line-height:25px; font-weight:650; }
+.accounts-sheet .accounts-field-label { display:block; margin-bottom:8px; font-size:15px; line-height:20px; }
+.accounts-sheet .accounts-note > p { margin:0; }
+.accounts-sheet .accounts-note > p + p { margin-top:10px; }
+.accounts-sheet .accounts-note > .accounts-action { margin-top:12px; }
+.accounts-sheet .accounts-note > .accounts-input + .accounts-caption { margin:8px 0 12px; padding:0; }
+.accounts-sheet .accounts-note > .accounts-group-title { padding:0; }
+.accounts-sheet .accounts-note .account-source { border-radius:14px; margin:8px 0; }
+.accounts-sheet .accounts-preview { padding:16px; border-radius:26px; }
+.accounts-sheet .accounts-preview > .accounts-group-title { padding:0; }
+.accounts-sheet .accounts-preview > p { margin:8px 0; }
+.accounts-sheet .accounts-preview > ul { margin:12px 0; padding-left:22px; font-size:15px; line-height:22px; overflow-wrap:anywhere; }
+.accounts-sheet .accounts-preview > .accounts-caption { padding:0; margin-bottom:16px; }
+.accounts-sheet a.accounts-action { text-decoration:none; }
+.accounts-sheet .accounts-policy { color:var(--accounts-blue-text); display:inline-flex; align-items:center; min-height:44px; font-size:13px; padding:0 16px; }
+.accounts-sheet .account-chevron { width:18px; height:18px; }

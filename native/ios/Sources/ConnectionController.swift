@@ -14,34 +14,36 @@ final class ConnectionController: UITableViewController {
     private var status = "Sample mode. No Apple account is connected."
     private let origin: URL
     private let updateOrigin: (URL) -> Void
+    private let importLocally: ((NativeSnapshot) async throws -> Void)?
 
-    init(origin: URL, updateOrigin: @escaping (URL) -> Void) {
-        self.origin = origin; self.updateOrigin = updateOrigin
+    init(origin: URL, importLocally: ((NativeSnapshot) async throws -> Void)? = nil, updateOrigin: @escaping (URL) -> Void) {
+        self.origin = origin; self.updateOrigin = updateOrigin; self.importLocally = importLocally
         super.init(style: .insetGrouped)
     }
     required init?(coder: NSCoder) { fatalError("init(coder:) is not supported") }
     override func viewDidLoad() {
         super.viewDidLoad()
-        title = "Device Connection"
+        title = importLocally == nil ? "Device Connection" : "Apple Reminders"
         navigationItem.rightBarButtonItem = UIBarButtonItem(systemItem: .close, primaryAction: UIAction { [weak self] _ in
             self?.preview = nil; self?.dismiss(animated: true)
         })
         navigationItem.rightBarButtonItem?.accessibilityIdentifier = "device.close"
         lists = (try? store.lists()) ?? []
-        client = try? NativeDeviceClient.make(origin: origin)
+        if importLocally == nil { client = try? NativeDeviceClient.make(origin: origin) }
         tableView.accessibilityIdentifier = "device.connection"
         tableView.rowHeight = UITableView.automaticDimension
         tableView.estimatedRowHeight = 60
     }
-    override func numberOfSections(in tableView: UITableView) -> Int { 6 }
+    private func section(_ section: Int) -> Int { importLocally == nil ? section : section + 1 }
+    override func numberOfSections(in tableView: UITableView) -> Int { importLocally == nil ? 6 : 3 }
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        switch section { case 0, 1: return 1; case 2: return max(1, lists.count); case 3: return 1; case 4: return 3; default: return 2 }
+        switch self.section(section) { case 0, 1: return 1; case 2: return max(1, lists.count); case 3: return 1; case 4: return 3; default: return 2 }
     }
     override func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
-        ["Your server", "Apple Reminders", "Choose lists", "Preview", "Sync", "Agent writeback"][section]
+        ["Your server", "Apple Reminders", "Choose lists", "Preview", "Sync", "Agent writeback"][self.section(section)]
     }
     override func tableView(_ tableView: UITableView, titleForFooterInSection section: Int) -> String? {
-        switch section {
+        switch self.section(section) {
         case 0: return "The web app signs in normally. Device credentials stay in Keychain and are never passed to the web page."
         case 1:
             #if targetEnvironment(simulator)
@@ -50,7 +52,7 @@ final class ConnectionController: UITableViewController {
             return "Apple requires full Reminders access, even for a preview. Only lists you select are read. Nothing is uploaded."
             #endif
         case 2: return "No lists are selected by default. Changing the selection clears the preview."
-        case 3: return status
+        case 3: return status + (importLocally == nil ? "" : " This shares copies with the current web page. The browser demo stores copies on this device. The companion does not upload or change Apple reminders. Refresh by selecting and importing a fresh preview.")
         case 4: return pairing.map { "Approve this device on your signed-in server using code \($0.code). No reminder contents are sent by pairing. Then check approval and upload your reviewed preview." } ?? "Pairing shares selected list names for owner approval. Upload sends only the reviewed selected-list preview. Native completion runs only when you choose Sync Task Completions; there is no background execution."
         default: return "Writeback is off until you enable it. Only successfully delegated, unchanged nonrecurring reminders may be completed. Apple may apply its own subtask completion rules; private hierarchy is unavailable. Disconnect revokes this device token without deleting Apple reminders."
         }
@@ -63,7 +65,7 @@ final class ConnectionController: UITableViewController {
         cell.textLabel?.adjustsFontForContentSizeCategory = true
         cell.detailTextLabel?.adjustsFontForContentSizeCategory = true
         cell.isAccessibilityElement = true
-        switch path.section {
+        switch section(path.section) {
         case 0:
             cell.textLabel?.text = "Reminders server"; cell.detailTextLabel?.text = origin.absoluteString
             cell.accessoryType = .disclosureIndicator
@@ -113,7 +115,7 @@ final class ConnectionController: UITableViewController {
     override func tableView(_ tableView: UITableView, didSelectRowAt path: IndexPath) {
         tableView.deselectRow(at: path, animated: true)
         guard !busy else { return }
-        switch path.section {
+        switch section(path.section) {
         case 0: editOrigin()
         case 1: connect()
         case 2:
@@ -130,7 +132,15 @@ final class ConnectionController: UITableViewController {
         #if targetEnvironment(simulator)
         return
         #else
-        if !store.isSample { disconnect(); return }
+        if !store.isSample {
+            if importLocally == nil { disconnect() }
+            else {
+                preview = nil; previewKey = nil; selectedListIDs.removeAll()
+                store = SampleReminderStore(); lists = (try? store.lists()) ?? []
+                status = "Disconnected locally. Apple reminders were not changed."; tableView.reloadData()
+            }
+            return
+        }
         let alert = UIAlertController(title: "Connect Apple Reminders?", message:
             "iOS will ask for full Reminders access. You choose which lists to preview. Nothing is uploaded, and writeback stays off.", preferredStyle: .alert)
         alert.addAction(UIAlertAction(title: "Cancel", style: .cancel))
@@ -165,12 +175,30 @@ final class ConnectionController: UITableViewController {
                 let selection = selectedListIDs
                 let snapshot = try await store.snapshot(selectedListIDs: selection)
                 guard selection == selectedListIDs else { return }
-                preview = snapshot; previewKey = UUID().uuidString
+                if importLocally != nil { _ = try LocalImportPolicy.encoded(snapshot) }
+                preview = snapshot; let key = UUID().uuidString; previewKey = key
                 status = "Preview contains \(snapshot.reminders.count) reminders from \(snapshot.lists.count) selected lists. Nothing is uploaded."
-                let back = UIBarButtonItem(title: "Device Connection", style: .plain, target: nil, action: nil)
+                let back = UIBarButtonItem(title: title, style: .plain, target: nil, action: nil)
                 back.accessibilityIdentifier = "device.preview.back"
                 navigationItem.backBarButtonItem = back
-                let controller = PreviewController(snapshot: snapshot)
+                let reviewedSnapshot: (() async throws -> NativeSnapshot)? = importLocally == nil ? nil : { [weak self] in
+                    guard let self, self.preview != nil, self.previewKey == key,
+                          self.selectedListIDs == Set(snapshot.selectedListIDs) else { throw NativeSyncError.conflict }
+                    let current = try await self.store.snapshot(selectedListIDs: self.selectedListIDs)
+                    guard self.preview != nil, self.previewKey == key,
+                          self.selectedListIDs == Set(current.selectedListIDs),
+                          current.lists == snapshot.lists, current.revisions == snapshot.revisions else { throw NativeSyncError.conflict }
+                    _ = try LocalImportPolicy.encoded(current)
+                    return current
+                }
+                let localAction: (() async throws -> Void)? = importLocally.map { deliver in
+                    {
+                        guard let reviewedSnapshot else { throw NativeSyncError.invalidSnapshot }
+                        let current = try await reviewedSnapshot()
+                        try await deliver(current)
+                    }
+                }
+                let controller = PreviewController(snapshot: snapshot, origin: origin, importLocally: localAction, exportLocally: reviewedSnapshot)
                 navigationController?.pushViewController(controller, animated: true)
             } catch { showError(error) }
         }
@@ -310,19 +338,43 @@ final class ConnectionController: UITableViewController {
 @MainActor
 private final class PreviewController: UITableViewController {
     private let snapshot: NativeSnapshot
-    init(snapshot: NativeSnapshot) { self.snapshot = snapshot; super.init(style: .insetGrouped) }
+    private let origin: URL
+    private let importLocally: (() async throws -> Void)?
+    private let exportLocally: (() async throws -> NativeSnapshot)?
+    private var importing = false
+    init(snapshot: NativeSnapshot, origin: URL, importLocally: (() async throws -> Void)? = nil,
+         exportLocally: (() async throws -> NativeSnapshot)? = nil) {
+        self.snapshot = snapshot; self.origin = origin; self.importLocally = importLocally
+        self.exportLocally = exportLocally; super.init(style: .insetGrouped)
+    }
     required init?(coder: NSCoder) { fatalError("init(coder:) is not supported") }
     override func viewDidLoad() {
         super.viewDidLoad(); title = "Import Preview"
         tableView.accessibilityIdentifier = "device.preview.screen"
         tableView.accessibilityValue = "\(snapshot.reminders.count) reminders"
-        if snapshot.sample {
+        if importLocally != nil {
+            navigationItem.rightBarButtonItem = UIBarButtonItem(title: "Use on This Device", style: .done, target: self, action: #selector(confirmLocalImport))
+            navigationItem.rightBarButtonItem?.accessibilityIdentifier = "device.import.local"
+        } else if snapshot.sample {
             navigationItem.rightBarButtonItem = UIBarButtonItem(title: "Export Sample", style: .plain, target: self, action: #selector(exportSample))
         }
+        if exportLocally != nil {
+            let export = UIBarButtonItem(title: "Export for Browser", style: .plain, target: self, action: #selector(confirmBrowserExport))
+            export.accessibilityIdentifier = "device.import.export"
+            toolbarItems = [UIBarButtonItem(systemItem: .flexibleSpace), export, UIBarButtonItem(systemItem: .flexibleSpace)]
+        }
+    }
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        navigationController?.setToolbarHidden(exportLocally == nil, animated: animated)
+    }
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        navigationController?.setToolbarHidden(true, animated: animated)
     }
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int { snapshot.reminders.count }
     override func tableView(_ tableView: UITableView, titleForFooterInSection section: Int) -> String? {
-        "Local preview only. Sync is not connected. Tags, subtasks, flags, photos, shopping categories, sections, assignments, smart-list rules, recurrence rules and alarms are not exported by this foundation."
+        "Local preview only. \(snapshot.sample ? "Synthetic sample data; no Apple account is read. " : "")Tags, subtasks, flags, photos, shopping categories, sections, assignments, smart-list rules, recurrence rules and alarms are not exported by this foundation."
     }
     override func tableView(_ tableView: UITableView, cellForRowAt path: IndexPath) -> UITableViewCell {
         let record = snapshot.reminders[path.row]
@@ -333,6 +385,65 @@ private final class PreviewController: UITableViewController {
         cell.detailTextLabel?.text = snapshot.lists.first { $0.id == record.listID }?.title
         cell.selectionStyle = .none
         return cell
+    }
+    @objc private func confirmLocalImport() {
+        guard let importLocally, !importing else { return }
+        let alert = UIAlertController(title: "Use \(snapshot.reminders.count) Reminders on This Device?", message:
+            "Share this reviewed selection with the web page at \(origin.absoluteString). That page can read these copies. The browser demo stores them on this device; other instances may handle them differently. The companion does not upload or change Apple reminders.\(snapshot.sample ? " These are fictional sample reminders." : "")", preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: "Cancel", style: .cancel))
+        alert.addAction(UIAlertAction(title: "Use on This Device", style: .default) { [weak self] _ in
+            guard let self else { return }
+            self.importing = true; self.navigationItem.rightBarButtonItem?.isEnabled = false
+            self.navigationItem.hidesBackButton = true; self.navigationController?.isModalInPresentation = true
+            Task { @MainActor in
+                defer {
+                    self.importing = false; self.navigationItem.rightBarButtonItem?.isEnabled = true
+                    self.navigationItem.hidesBackButton = false; self.navigationController?.isModalInPresentation = false
+                }
+                do { try await importLocally(); self.dismiss(animated: true) }
+                catch {
+                    let message = (error as? NativeSyncError)?.errorDescription ?? "The local import could not finish. Start a fresh preview."
+                    let failure = UIAlertController(title: "Import", message: message, preferredStyle: .alert)
+                    failure.addAction(UIAlertAction(title: "OK", style: .default)); self.present(failure, animated: true)
+                }
+            }
+        })
+        present(alert, animated: true)
+    }
+    @objc private func confirmBrowserExport() {
+        guard let exportLocally, !importing else { return }
+        let alert = UIAlertController(title: "Export Selected Reminders?", message:
+            "Save a JSON file containing this reviewed selection. In Safari, open Reminders → Accounts → iCloud → Import from iPhone and choose that file. The file contains reminder text; choose a private location and delete it after importing. Apple reminders are not changed.\(snapshot.sample ? " This export contains fictional sample data." : "")", preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: "Cancel", style: .cancel))
+        alert.addAction(UIAlertAction(title: "Export", style: .default) { [weak self] _ in
+            guard let self else { return }
+            self.importing = true; self.navigationItem.rightBarButtonItem?.isEnabled = false
+            self.navigationItem.hidesBackButton = true; self.navigationController?.isModalInPresentation = true
+            Task { @MainActor in
+                defer {
+                    self.importing = false; self.navigationItem.rightBarButtonItem?.isEnabled = true
+                    self.navigationItem.hidesBackButton = false; self.navigationController?.isModalInPresentation = false
+                }
+                var temporaryDirectory: URL?
+                do {
+                    let current = try await exportLocally()
+                    let directory = FileManager.default.temporaryDirectory.appendingPathComponent("ReminderImport-\(UUID().uuidString)", isDirectory: true)
+                    try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
+                    temporaryDirectory = directory
+                    let file = directory.appendingPathComponent("reminders-import.json")
+                    try LocalImportPolicy.encoded(current).write(to: file, options: [.atomic, .completeFileProtection])
+                    let share = UIActivityViewController(activityItems: [file], applicationActivities: nil)
+                    share.popoverPresentationController?.barButtonItem = self.toolbarItems?[1]
+                    share.completionWithItemsHandler = { _, _, _, _ in try? FileManager.default.removeItem(at: directory) }
+                    self.present(share, animated: true)
+                } catch {
+                    if let temporaryDirectory { try? FileManager.default.removeItem(at: temporaryDirectory) }
+                    let failure = UIAlertController(title: "Export", message: (error as? NativeSyncError)?.errorDescription ?? "The selected preview could not be exported. Try a fresh preview.", preferredStyle: .alert)
+                    failure.addAction(UIAlertAction(title: "OK", style: .default)); self.present(failure, animated: true)
+                }
+            }
+        })
+        present(alert, animated: true)
     }
     @objc private func exportSample() {
         guard snapshot.sample, let data = try? snapshot.encoded(), let json = String(data: data, encoding: .utf8) else { return }

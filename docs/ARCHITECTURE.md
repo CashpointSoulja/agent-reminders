@@ -15,7 +15,15 @@ Agent Reminders is a small single-owner application. The browser renders the fam
 | Native companion | `native/ios/Sources/` | WKWebView, public EventKit, consent, credentials and command journal |
 | Reference runtime client | `scripts/agent-client.mjs` | Discovery, assigned-task reads, claim/heartbeat/report helper |
 
-The public playground is a separate browser-local experience with fictional seed data. It has no connection to a deployed private API or Apple account.
+The public playground is a separate browser-local experience with fictional seed data. It has no connection to a deployed private API. Its optional Accounts sheet connects directly to Google, or imports a selected Apple Reminders snapshot from the companion. Imported account data remains in the browser's storage and is not sent to the private Worker.
+
+## Browser-local accounts
+
+Google Identity Services supplies short-lived access tokens through explicit provider consent. Tokens live only in a service closure in memory. Calendar is read-only; Tasks completion writeback needs a separate permission and is limited to selected previewed tasks, guarded by the current provider version. Reloading requires reconnection.
+
+Provider snapshots pass through a bounded shared import reducer. Stable source identifiers prevent duplicate imports; separate local provenance enables a three-way refresh that preserves local edits and missing source records. No provider credentials are saved with reminders or provenance. Browser storage is local to the profile, not encrypted against another person using that profile.
+
+The companion's main-frame, same-origin bridge offers reviewed EventKit snapshots to the local app. Navigation generation and document checks prevent delivery into another destination. A separately confirmed JSON export lets the user import selected iCloud lists into Safari, where Google sign-in is available. EventKit, Google and local storage do not share a transaction, and these are manual foreground refreshes rather than background synchronization.
 
 ## Data and writes
 

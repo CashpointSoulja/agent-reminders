@@ -19,7 +19,9 @@ Organise lists, dates, notes and subtasks, then explicitly delegate selected rem
 
 ## Try it
 
-**[Open the playground](https://agent-reminders-demo.pages.dev)** — fictional reminders stored in your own browser. It does not connect to an Apple account, expose a private workspace or run agents. Your edits survive a reload; use a private window or clear this site's browser data to start again.
+**[Open Reminders](https://reminders-web-rea.pages.dev/)** — fictional reminders stored in your own browser, with optional selected account imports through **More → Accounts**. It does not expose a private workspace or run agents. Your edits survive a reload; use a private window or clear this site's browser data to start again.
+
+Google Calendar and Google Tasks need a public OAuth web client configured for this origin. iCloud lists need the companion's system permission and a reviewed local import or browser export. See [account linking](docs/account-linking.md). These are manual refreshes; Calendar and iCloud copies do not write back to their source.
 
 For persistent server storage, agent execution and private attachments, run your own instance using the instructions below.
 
@@ -33,6 +35,7 @@ For persistent server storage, agent execution and private attachments, run your
 - A password-protected workspace, revision-guarded writes and private attachments.
 - Agent discovery, OpenAPI, scoped tokens, leased claims and evidence-backed completion receipts.
 - An opt-in iOS companion for selected-list import and completion-only writeback.
+- Browser-local Google Calendar/Tasks imports and reviewed iCloud imports, with conflict preservation and separately enabled Google Tasks completion.
 
 Agent and device features are separate opt-ins. The public playground does not provide their server authority. Shopping categorisation uses a local English vocabulary; it does not reproduce Apple's classifier.
 
@@ -110,7 +113,7 @@ For a static-only playground artifact, run `npm run build:demo` followed by `nod
 
 The unit/integration suite includes real SQLite transaction tests with a D1 adapter and fake R2. Browser and iPhone simulator checks cover selected flows using fictional data; they do not establish whole-screen pixel equality or physical-device sync.
 
-Release checks: **153 automated tests pass**. The live playground was also checked for save/reload persistence, independent-browser isolation, completion/reopening, subtask collapse/expansion, template copying and shopping categories. That run made 126 requests with zero API requests, external-origin requests or page errors. Drag/native motion and real Apple sync were not part of that public-demo check.
+The original public release passed 153 automated tests and browser checks for save/reload persistence, independent-browser isolation, completion/reopening, subtasks, templates and shopping categories. Account adapter/import tests additionally use synthetic provider responses to check permissions, paging, dates, conflict preservation, missing data, selected-task completion and reconnection races. These checks do not prove real OAuth consent or physical Apple sync.
 
 Optional macOS checks:
 
@@ -122,7 +125,7 @@ native/ios/build.sh
 
 ## Documentation
 
-[User guide](docs/USER-GUIDE.md) · [Architecture](docs/ARCHITECTURE.md) · [REST API](docs/API.md) · [Agent API](docs/AGENT-API.md) · [iOS companion](docs/NATIVE-SYNC.md) · [Roadmap](docs/ROADMAP.md) · [All docs](docs/README.md)
+[User guide](docs/USER-GUIDE.md) · [Accounts](docs/account-linking.md) · [Architecture](docs/ARCHITECTURE.md) · [REST API](docs/API.md) · [Agent API](docs/AGENT-API.md) · [iOS companion](docs/NATIVE-SYNC.md) · [Roadmap](docs/ROADMAP.md) · [All docs](docs/README.md)
 
 ## Limits and privacy
 

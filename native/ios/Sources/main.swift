@@ -11,7 +11,9 @@ private final class UITestNoRedirect: NSObject, URLSessionTaskDelegate {
 @MainActor
 final class WebController: UIViewController, WKNavigationDelegate, WKScriptMessageHandler {
     private var web: WKWebView!
-    private var origin: URL = URL(string: "http://localhost:8081")!
+    private var origin: URL = URL(string: "https://reminders-web-rea.pages.dev")!
+    private var navigationGeneration = 0
+    private var preparingAccountImport = false
     override func viewDidLoad() {
         super.viewDidLoad(); view.backgroundColor = .systemBackground
         if let configured = UserDefaults.standard.string(forKey: "companion.origin"), let valid = try? CompanionOrigin.validate(configured) { origin = valid }
@@ -29,6 +31,7 @@ final class WebController: UIViewController, WKNavigationDelegate, WKScriptMessa
           const content = (viewport.content || 'width=device-width, initial-scale=1').split(',').map(item => item.trim()).filter(item => !item.startsWith('viewport-fit='));
           content.push('viewport-fit=cover'); viewport.content = content.join(', ');
           document.body?.setAttribute('data-native-shell', 'true');
+          document.documentElement.setAttribute('data-native-document', crypto.randomUUID());
         })();
         """, injectionTime: .atDocumentEnd, forMainFrameOnly: true))
         web = WKWebView(frame: .zero, configuration: configuration)
@@ -80,7 +83,7 @@ final class WebController: UIViewController, WKNavigationDelegate, WKScriptMessa
         [UIKeyCommand(title: "Device Connection", action: #selector(showSettings), input: ",", modifierFlags: .command)]
     }
     @objc func showSettings() {
-        guard presentedViewController == nil else { return }
+        guard presentedViewController == nil, !preparingAccountImport else { return }
         let settings = ConnectionController(origin: origin) { [weak self] next in
             guard let self else { return }
             origin = next; UserDefaults.standard.set(next.absoluteString, forKey: "companion.origin")
@@ -91,10 +94,54 @@ final class WebController: UIViewController, WKNavigationDelegate, WKScriptMessa
         navigation.sheetPresentationController?.detents = [.large()]
         present(navigation, animated: true)
     }
+    private func showAccountImport() {
+        guard presentedViewController == nil, !preparingAccountImport,
+              CompanionOrigin.matches(web.url, origin) else { return }
+        preparingAccountImport = true
+        let generation = navigationGeneration, targetOrigin = origin
+        Task { @MainActor in
+            defer { preparingAccountImport = false }
+            do {
+                guard let documentToken = try await web.evaluateJavaScript("document.documentElement.getAttribute('data-native-document')") as? String,
+                      documentToken.count == 36 else { throw NativeSyncError.browserChanged }
+                try LocalImportPolicy.validateDestination(page: web.url, origin: targetOrigin,
+                    requestedGeneration: generation, currentGeneration: navigationGeneration)
+                guard presentedViewController == nil else { return }
+                let settings = ConnectionController(origin: targetOrigin, importLocally: { [weak self] snapshot in
+                    guard let self else { throw NativeSyncError.browserChanged }
+                    try LocalImportPolicy.validateDestination(page: self.web.url, origin: targetOrigin,
+                        requestedGeneration: generation, currentGeneration: self.navigationGeneration)
+                    let bytes = try LocalImportPolicy.encoded(snapshot)
+                    guard let json = String(data: bytes, encoding: .utf8) else { throw NativeSyncError.invalidSnapshot }
+                    let delivered = try await self.web.callAsyncJavaScript("""
+                    if (window.location.origin !== new URL(origin).origin ||
+                        document.documentElement.getAttribute('data-native-document') !== documentToken) return false;
+                    window.dispatchEvent(new CustomEvent('rea:apple-reminders-import', {detail: JSON.parse(snapshot)}));
+                    return true;
+                    """, arguments: ["origin": targetOrigin.absoluteString, "documentToken": documentToken, "snapshot": json],
+                        in: nil, contentWorld: .page)
+                    guard delivered as? Bool == true else { throw NativeSyncError.browserChanged }
+                }, updateOrigin: { _ in })
+                let navigation = UINavigationController(rootViewController: settings)
+                navigation.modalPresentationStyle = .pageSheet
+                navigation.sheetPresentationController?.detents = [.large()]
+                present(navigation, animated: true)
+            } catch {
+                // A stale web document cannot open a native consent sheet or receive reminder data.
+            }
+        }
+    }
     func userContentController(_ userContentController: WKUserContentController, didReceive message: WKScriptMessage) {
         guard message.frameInfo.isMainFrame, CompanionOrigin.matches(message.frameInfo.request.url, origin),
-              let body = message.body as? [String: String], body.count == 1, body["action"] == "showSettings" else { return }
-        showSettings()
+              let body = message.body as? [String: String], body.count == 1 else { return }
+        switch body["action"] {
+        case "showSettings": showSettings()
+        case "showAccountImport": showAccountImport()
+        default: return
+        }
+    }
+    func webView(_ webView: WKWebView, didStartProvisionalNavigation navigation: WKNavigation!) {
+        navigationGeneration += 1
     }
     func webView(_ webView: WKWebView, decidePolicyFor navigationAction: WKNavigationAction,
                  decisionHandler: @escaping (WKNavigationActionPolicy) -> Void) {
@@ -116,7 +163,6 @@ final class AppDelegate: UIResponder, UIApplicationDelegate {
         let root = WebController(); controller = root
         let window = UIWindow(frame: UIScreen.main.bounds)
         window.rootViewController = root; window.makeKeyAndVisible(); self.window = window
-        DispatchQueue.main.async { root.showSettings() }
         return true
     }
     func application(_ application: UIApplication, performActionFor shortcutItem: UIApplicationShortcutItem,

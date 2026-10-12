@@ -12,10 +12,10 @@
   "type": "module",
   "main": "index.js",
   "scripts": {
-    "start": "EXPO_PUBLIC_DEMO_MODE=1 EXPO_NO_TYPESCRIPT_SETUP=1 expo start --web --port 8081 --localhost",
-    "start:server": "EXPO_PUBLIC_DEMO_MODE=0 EXPO_NO_TYPESCRIPT_SETUP=1 expo start --web --port 8081 --localhost",
-    "build": "EXPO_PUBLIC_DEMO_MODE=0 expo export --platform web",
-    "build:demo": "EXPO_PUBLIC_DEMO_MODE=1 expo export --platform web",
+    "start": "EXPO_PUBLIC_DEMO_MODE=1 EXPO_NO_TYPESCRIPT_SETUP=1 expo start --web --port 8081 --localhost --clear",
+    "start:server": "EXPO_PUBLIC_DEMO_MODE=0 EXPO_NO_TYPESCRIPT_SETUP=1 expo start --web --port 8081 --localhost --clear",
+    "build": "EXPO_PUBLIC_DEMO_MODE=0 expo export --platform web --clear",
+    "build:demo": "EXPO_PUBLIC_DEMO_MODE=1 expo export --platform web --clear",
     "test": "node --test tests/*.test.js",
     "api:dev": "wrangler dev --config wrangler.api.jsonc --port 8787",
     "api:migrate": "wrangler d1 execute agent-reminders-data --local --file backend/schema.sql --config wrangler.api.jsonc"

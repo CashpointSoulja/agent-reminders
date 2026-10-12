@@ -1,6 +1,8 @@
 # User guide
 
-The public playground starts with fictional reminders in your own browser. It does not connect to a private server or Apple account. A self-hosted instance adds persistent storage, private attachments and opt-in agent/device features.
+The public playground starts with fictional reminders in your own browser. It does not connect to a private server. Optional **More → Accounts** imports selected Google Calendar, Google Tasks or companion-reviewed iCloud records into this browser. A self-hosted instance adds persistent storage, private attachments and opt-in agent/device features.
+
+For provider consent, selected-list previews, manual refresh, optional Google Tasks completion and iCloud companion setup, follow [account linking](account-linking.md). Clearing browser storage removes local copies; disconnecting leaves the copies intact. Calendar and iCloud copies do not update their source accounts.
 
 ## Capture and organise
 

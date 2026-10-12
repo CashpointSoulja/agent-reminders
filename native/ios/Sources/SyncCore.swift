@@ -1,6 +1,15 @@
 import Foundation
 import CryptoKit
 
+private func encodeNativeTimestamp(_ date: Date, encoder: Encoder) throws {
+    let milliseconds = (date.timeIntervalSince1970 * 1_000).rounded(.down)
+    guard milliseconds.isFinite, abs(milliseconds) <= 8_640_000_000_000_000 else {
+        throw EncodingError.invalidValue(date, .init(codingPath: encoder.codingPath, debugDescription: "Invalid native timestamp"))
+    }
+    var container = encoder.singleValueContainer()
+    try container.encode(Int64(milliseconds))
+}
+
 struct NativeList: Codable, Equatable {
     let id: String
     let title: String
@@ -48,10 +57,7 @@ struct NativeReminder: Codable, Equatable {
     var revision: String {
         let encoder = JSONEncoder()
         encoder.outputFormatting = [.sortedKeys, .withoutEscapingSlashes]
-        encoder.dateEncodingStrategy = .custom { date, encoder in
-            var container = encoder.singleValueContainer()
-            try container.encode(Int64((date.timeIntervalSince1970 * 1000).rounded(.down)))
-        }
+        encoder.dateEncodingStrategy = .custom(encodeNativeTimestamp)
         guard let bytes = try? encoder.encode(self) else { return "" }
         return SHA256.hash(data: bytes).map { String(format: "%02x", $0) }.joined()
     }
@@ -75,10 +81,7 @@ struct NativeSnapshot: Encodable {
     func encoded() throws -> Data {
         let encoder = JSONEncoder()
         encoder.outputFormatting = [.sortedKeys, .withoutEscapingSlashes]
-        encoder.dateEncodingStrategy = .custom { date, encoder in
-            var container = encoder.singleValueContainer()
-            try container.encode(Int64((date.timeIntervalSince1970 * 1000).rounded(.down)))
-        }
+        encoder.dateEncodingStrategy = .custom(encodeNativeTimestamp)
         return try encoder.encode(self)
     }
 }
@@ -94,7 +97,7 @@ struct NativeCompletionCommand: Codable {
 }
 
 enum NativeSyncError: Error, LocalizedError, Equatable {
-    case permission, noLists, missingReminder, conflict, writebackDisabled, invalidCommand, insecureOrigin, unsupported
+    case permission, noLists, missingReminder, conflict, writebackDisabled, invalidCommand, insecureOrigin, unsupported, importTooLarge, invalidSnapshot, browserChanged
     var errorDescription: String? {
         switch self {
         case .permission: return "Reminders access is not enabled."
@@ -105,7 +108,59 @@ enum NativeSyncError: Error, LocalizedError, Equatable {
         case .invalidCommand: return "The completion command is invalid or expired."
         case .insecureOrigin: return "Use HTTPS, or localhost for isolated development."
         case .unsupported: return "This action is not available in the companion foundation."
+        case .importTooLarge: return "This selection is too large to import locally. Choose fewer lists or shorten the oversized reminder."
+        case .invalidSnapshot: return "The selected preview is invalid. Preview your selected lists again."
+        case .browserChanged: return "The web page changed. Return to Accounts and start a fresh import."
         }
+    }
+}
+
+enum LocalImportPolicy {
+    static let maximumLists = 100
+    static let maximumReminders = 5_000
+    static let maximumBytes = 2 * 1_024 * 1_024
+
+    static func validateDestination(page: URL?, origin: URL, requestedGeneration: Int, currentGeneration: Int) throws {
+        guard requestedGeneration == currentGeneration, CompanionOrigin.matches(page, origin) else {
+            throw NativeSyncError.browserChanged
+        }
+    }
+
+    static func encoded(_ snapshot: NativeSnapshot) throws -> Data {
+        guard !snapshot.lists.isEmpty, snapshot.lists.count <= maximumLists,
+              snapshot.reminders.count <= maximumReminders else { throw NativeSyncError.importTooLarge }
+        let selected = Set(snapshot.selectedListIDs), listIDs = Set(snapshot.lists.map(\.id))
+        guard selected.count == snapshot.selectedListIDs.count, selected == listIDs,
+              listIDs.count == snapshot.lists.count,
+              Set(snapshot.reminders.map(\.id)).count == snapshot.reminders.count,
+              snapshot.reminders.allSatisfy({ selected.contains($0.listID) && (0...9).contains($0.priority) }) else {
+            throw NativeSyncError.invalidSnapshot
+        }
+        func validDate(_ value: Date?) -> Bool {
+            guard let value else { return true }
+            return value.timeIntervalSince1970.isFinite && abs(value.timeIntervalSince1970) <= 8_640_000_000_000
+        }
+        guard validDate(snapshot.generatedAt), snapshot.reminders.allSatisfy({
+            validDate($0.completionDate) && validDate($0.modifiedAt)
+        }) else { throw NativeSyncError.invalidSnapshot }
+        func bounded(_ value: String?, _ limit: Int, required: Bool = false) -> Bool {
+            guard let value else { return !required }
+            return (!required || !value.isEmpty) && value.utf8.count <= limit
+        }
+        func boundedDate(_ value: NativeDate?) -> Bool {
+            guard let value else { return true }
+            return bounded(value.timeZone, 256) && bounded(value.calendarID, 64)
+        }
+        guard snapshot.lists.allSatisfy({ bounded($0.id, 1_024, required: true) && bounded($0.title, 512) }),
+              snapshot.reminders.allSatisfy({
+                  bounded($0.id, 1_024, required: true) && bounded($0.externalID, 1_024)
+                  && bounded($0.listID, 1_024, required: true) && bounded($0.title, 1_024)
+                  && bounded($0.notes, 16_384) && bounded($0.url, 4_096)
+                  && boundedDate($0.due) && boundedDate($0.start)
+              }) else { throw NativeSyncError.importTooLarge }
+        let data = try snapshot.encoded()
+        guard data.count <= maximumBytes else { throw NativeSyncError.importTooLarge }
+        return data
     }
 }
 

@@ -59,6 +59,41 @@ struct SyncCoreTests {
         for unsafe in ["https://localhost:8081", "http://127.0.0.1:8081", "http://localhost:8082", "https://example.com", "http://localhost:8081/path", "http://localhost:8081/?sample=1"] {
             check(!UITestSessionPolicy.allows(environment: ["REA_UI_TEST":"1"], origin: URL(string: unsafe)!), "UI session never leaves exact test origin")
         }
+        let imported = try LocalImportPolicy.encoded(snapshot)
+        let original = try snapshot.encoded()
+        check(imported == original, "Local import preserves the reviewed sample exactly")
+        try LocalImportPolicy.validateDestination(page: URL(string: "https://example.com/accounts"), origin: remote, requestedGeneration: 2, currentGeneration: 2)
+        passed += 1
+        rejected({ try LocalImportPolicy.validateDestination(page: remote, origin: remote, requestedGeneration: 2, currentGeneration: 3) }, "Navigation invalidates native import")
+        rejected({ try LocalImportPolicy.validateDestination(page: URL(string: "https://other.example"), origin: remote, requestedGeneration: 2, currentGeneration: 2) }, "Foreign destination rejects native data")
+        rejected({ try LocalImportPolicy.validateDestination(page: nil, origin: remote, requestedGeneration: 2, currentGeneration: 2) }, "Missing document rejects native data")
+        let unselected = NativeSnapshot(generatedAt: Date(), sample: true, selectedListIDs: ["other"], lists: snapshot.lists, reminders: snapshot.reminders)
+        rejected({ _ = try LocalImportPolicy.encoded(unselected) }, "Every exported list was explicitly selected")
+        let duplicateSelection = NativeSnapshot(generatedAt: Date(), sample: true, selectedListIDs: [record.listID, record.listID], lists: snapshot.lists, reminders: snapshot.reminders)
+        rejected({ _ = try LocalImportPolicy.encoded(duplicateSelection) }, "Duplicate selection rejects export")
+        let empty = NativeSnapshot(generatedAt: Date(), sample: true, selectedListIDs: [], lists: [], reminders: [])
+        rejected({ _ = try LocalImportPolicy.encoded(empty) }, "Empty import rejects export")
+        let invalidTimestamp = NativeSnapshot(generatedAt: Date(timeIntervalSince1970: .nan), sample: true, selectedListIDs: snapshot.selectedListIDs, lists: snapshot.lists, reminders: snapshot.reminders)
+        rejected({ _ = try LocalImportPolicy.encoded(invalidTimestamp) }, "Invalid timestamp rejects before encoding")
+        func sampleRecord(id: String = "sample-import", title: String = "Sample", notes: String? = nil, priority: Int = 0) -> NativeReminder {
+            NativeReminder(id: id, externalID: nil, listID: record.listID, title: title, notes: notes, url: nil,
+                completed: false, completionDate: nil, due: timed, start: nil, priority: priority, modifiedAt: nil, recurring: false)
+        }
+        func selectedSnapshot(_ reminders: [NativeReminder]) -> NativeSnapshot {
+            NativeSnapshot(generatedAt: Date(), sample: true, selectedListIDs: [record.listID], lists: snapshot.lists, reminders: reminders)
+        }
+        rejected({ _ = try LocalImportPolicy.encoded(selectedSnapshot([sampleRecord(title: String(repeating: "😀", count: 257))])) }, "UTF8 string budget enforced")
+        rejected({ _ = try LocalImportPolicy.encoded(selectedSnapshot([sampleRecord(notes: String(repeating: "x", count: 16_385))])) }, "Oversized notes reject rather than truncate")
+        rejected({ _ = try LocalImportPolicy.encoded(selectedSnapshot([sampleRecord(priority: 10)])) }, "Invalid Apple priority rejects export")
+        let excessiveLists = (0...LocalImportPolicy.maximumLists).map { NativeList(id: "sample-list-\($0)", title: "Sample", writable: true) }
+        rejected({ _ = try LocalImportPolicy.encoded(NativeSnapshot(generatedAt: Date(), sample: true, selectedListIDs: excessiveLists.map(\.id), lists: excessiveLists, reminders: [])) }, "Native list count bounded")
+        let largeRecords = (0...LocalImportPolicy.maximumReminders).map { sampleRecord(id: "sample-\($0)") }
+        rejected({ _ = try LocalImportPolicy.encoded(selectedSnapshot(largeRecords)) }, "Native reminder count bounded")
+        let byteHeavy = (0..<600).map { sampleRecord(id: "sample-\($0)", notes: String(repeating: "x", count: 4_096)) }
+        rejected({ _ = try LocalImportPolicy.encoded(selectedSnapshot(byteHeavy)) }, "Total JSON byte budget enforced")
+        let executableLooking = selectedSnapshot([sampleRecord(title: "</script>\"; window.sample=true; //", notes: "Synthetic script-like text")])
+        let inert = try JSONSerialization.jsonObject(with: LocalImportPolicy.encoded(executableLooking)) as! [String: Any]
+        check((inert["reminders"] as? [[String: Any]])?.first?["title"] as? String == executableLooking.reminders.first?.title, "Script-like strings remain JSON data")
         print("Native companion: \(passed) synthetic checks passed. No EventKit or Keychain access.")
     }
 }
