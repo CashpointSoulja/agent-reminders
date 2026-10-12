@@ -2,6 +2,6 @@
   "name": "reminders-web-rea",
   "pages_build_output_dir": "work/cloud-static",
   "compatibility_date": "2026-10-12",
-  "services": [{ "binding": "CLOUD", "service": "agent-reminders-private-cloud" }],
+  "services": [{ "binding": "CLOUD", "service": "agent-reminders-private-cloud", "environment": "production" }],
   "env": { "preview": { "services": [] } }
 }

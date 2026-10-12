@@ -1,5 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
 import proxy from "../backend/pages-cloud-proxy.js";
 
 const origin = "https://reminders-web-rea.pages.dev";
@@ -13,6 +14,13 @@ function setup() {
   return { env, cloudCalls, assetCalls };
 }
 const request = (path, { method = "GET", headers = {}, host = origin, body } = {}) => new Request(`${host}${path}`, { method, headers, body });
+
+test("public Pages binds only the explicit production cloud service; previews cannot inherit it", () => {
+  const config = JSON.parse(readFileSync(new URL("../wrangler.cloud-pages.example.jsonc", import.meta.url), "utf8"));
+  assert.deepEqual(config.services, [{ binding: "CLOUD", service: "agent-reminders-private-cloud", environment: "production" }]);
+  assert.deepEqual(config.env.preview.services, []);
+  assert.equal(config.d1_databases, undefined); assert.equal(config.r2_buckets, undefined);
+});
 
 test("only nested cloud routes use CLOUD; capability passes privately, cookies/referrer are removed and missing GET Origin is supplied", async () => {
   const { env, cloudCalls, assetCalls } = setup();
