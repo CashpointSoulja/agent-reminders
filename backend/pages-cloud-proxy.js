@@ -23,7 +23,7 @@ export default {
     headers.delete("cookie"); headers.delete("referer");
     if (url.pathname === "/cloud/health" || request.method === "OPTIONS") headers.delete("authorization");
     try {
-      const response = await env.CLOUD.fetch(new Request(request, { headers, redirect: "error" }));
+      const response = await env.CLOUD.fetch(new Request(request, { headers, redirect: "manual" }));
       if (response.status >= 300 && response.status < 400) return json({ error: "Private cloud redirects are disabled." }, 503);
       const responseHeaders = new Headers(response.headers);
       responseHeaders.set("cache-control", "no-store"); responseHeaders.set("x-content-type-options", "nosniff"); responseHeaders.set("referrer-policy", "no-referrer"); responseHeaders.delete("set-cookie");

@@ -31,7 +31,7 @@ test("only nested cloud routes use CLOUD; capability passes privately, cookies/r
   assert.equal(cloudCalls[0].headers.get("authorization"), bearer);
   assert.equal(cloudCalls[0].headers.get("origin"), origin);
   assert.equal(cloudCalls[0].headers.get("cookie"), null); assert.equal(cloudCalls[0].headers.get("referer"), null);
-  assert.equal(cloudCalls[0].redirect, "error");
+  assert.equal(cloudCalls[0].redirect, "manual");
   assert.equal(response.headers.get("cache-control"), "no-store"); assert.equal(response.headers.get("set-cookie"), null);
   await proxy.fetch(request("/_expo/static/synthetic.js"), env);
   assert.equal(cloudCalls.length, 1); assert.equal(assetCalls.length, 1);
